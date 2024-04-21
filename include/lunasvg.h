@@ -127,7 +127,7 @@ LUNASVG_API bool lunasvg_add_font_face_from_data(const char* family, bool bold, 
 }
 #endif
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 /**
 * @note Bitmap pixel format is ARGB32_Premultiplied.
@@ -771,6 +771,6 @@ private:
     std::unique_ptr<SVGRootElement> m_rootElement;
 };
 
-} //namespace lunasvg
+} //namespace wxlunasvg
 
 #endif // LUNASVG_H

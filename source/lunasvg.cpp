@@ -6,27 +6,7 @@
 #include <fstream>
 #include <cmath>
 
-int lunasvg_version()
-{
-    return LUNASVG_VERSION;
-}
-
-const char* lunasvg_version_string()
-{
-    return LUNASVG_VERSION_STRING;
-}
-
-bool lunasvg_add_font_face_from_file(const char* family, bool bold, bool italic, const char* filename)
-{
-    return lunasvg::fontFaceCache()->addFontFace(family, bold, italic, lunasvg::FontFace(filename));
-}
-
-bool lunasvg_add_font_face_from_data(const char* family, bool bold, bool italic, const void* data, size_t length, lunasvg_destroy_func_t destroy_func, void* closure)
-{
-    return lunasvg::fontFaceCache()->addFontFace(family, bold, italic, lunasvg::FontFace(data, length, destroy_func, closure));
-}
-
-namespace lunasvg {
+namespace wxlunasvg {
 
 Bitmap::Bitmap(int width, int height)
     : m_surface(plutovg_surface_create(width, height))
@@ -521,4 +501,4 @@ Document& Document::operator=(Document&&) = default;
 Document::Document() = default;
 Document::~Document() = default;
 
-} // namespace lunasvg
+} // namespace wxlunasvg

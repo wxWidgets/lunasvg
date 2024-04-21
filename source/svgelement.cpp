@@ -8,7 +8,7 @@
 
 #include <cassert>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 ElementID elementid(const std::string_view& name)
 {
@@ -1168,4 +1168,4 @@ void SVGMaskElement::layoutElement(const SVGLayoutState& state)
     SVGElement::layoutElement(state);
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

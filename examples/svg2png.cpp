@@ -3,7 +3,9 @@
 #include <iostream>
 #include <sstream>
 
-using namespace lunasvg;
+#include <lunasvg.h>
+
+using namespace wxlunasvg;
 
 int help()
 {
