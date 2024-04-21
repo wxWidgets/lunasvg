@@ -1,10 +1,10 @@
 #include "styleelement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 StyleElement::StyleElement()
     : Element(ElementID::Style)
 {
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

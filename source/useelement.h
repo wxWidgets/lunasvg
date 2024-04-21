@@ -3,7 +3,7 @@
 
 #include "graphicselement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class UseElement final : public GraphicsElement {
 public:
@@ -21,6 +21,6 @@ public:
     void build(const Document* document) final;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // USEELEMENT_H

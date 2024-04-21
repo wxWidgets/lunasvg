@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 static plutovg_matrix_t to_plutovg_matrix(const Transform& transform);
 static plutovg_fill_rule_t to_plutovg_fill_rule(WindRule winding);
@@ -253,4 +253,4 @@ void to_plutovg_path(plutovg_t* pluto, const Path& path)
     }
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

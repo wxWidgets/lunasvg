@@ -2,7 +2,7 @@
 #include "parser.h"
 #include "layoutcontext.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 MaskElement::MaskElement()
     : StyledElement(ElementID::Mask)
@@ -69,4 +69,4 @@ std::unique_ptr<LayoutMask> MaskElement::getMasker(LayoutContext* context)
     return masker;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

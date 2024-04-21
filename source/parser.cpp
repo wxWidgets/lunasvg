@@ -3,7 +3,7 @@
 #include "layoutcontext.h"
 #include "svgelement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 Length Parser::parseLength(const std::string& string, LengthNegativeValuesMode mode, const Length& defaultValue)
 {
@@ -1889,4 +1889,4 @@ bool Document::parse(const char* data, std::size_t size)
     return true;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

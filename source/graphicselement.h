@@ -3,7 +3,7 @@
 
 #include "styledelement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class GraphicsElement : public StyledElement {
 public:
@@ -12,6 +12,6 @@ public:
     Transform transform() const;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // GRAPHICSELEMENT_H

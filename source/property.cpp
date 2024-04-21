@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 const Color Color::Black(0xFF000000);
 const Color Color::White(0xFFFFFFFF);
@@ -729,4 +729,4 @@ Angle::Angle(double value, MarkerOrient type)
 {
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

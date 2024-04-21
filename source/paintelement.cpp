@@ -5,7 +5,7 @@
 
 #include <set>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 PaintElement::PaintElement(ElementID id)
     : StyledElement(id)
@@ -402,4 +402,4 @@ std::unique_ptr<LayoutObject> SolidColorElement::getPainter(LayoutContext*)
     return std::move(solid);
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

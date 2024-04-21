@@ -2,7 +2,7 @@
 #include "parser.h"
 #include "layoutcontext.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 MarkerElement::MarkerElement()
     : StyledElement(ElementID::Marker)
@@ -90,4 +90,4 @@ std::unique_ptr<LayoutMarker> MarkerElement::getMarker(LayoutContext* context)
     return marker;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

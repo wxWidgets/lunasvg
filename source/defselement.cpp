@@ -1,10 +1,10 @@
 #include "defselement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 DefsElement::DefsElement()
     : GraphicsElement(ElementID::Defs)
 {
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

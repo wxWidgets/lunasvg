@@ -7,7 +7,7 @@
 #include "property.h"
 #include "lunasvg.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 enum class ElementID {
     Unknown = 0,
@@ -217,6 +217,6 @@ protected:
     PropertyList m_properties;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // ELEMENT_H

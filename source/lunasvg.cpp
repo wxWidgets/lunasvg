@@ -7,7 +7,7 @@
 #include <cstring>
 #include <cmath>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 Box::Box(double x, double y, double w, double h)
     : x(x), y(y), w(w), h(h)
@@ -493,4 +493,4 @@ Document::Document(Document&&) = default;
 Document::~Document() = default;
 Document::Document() = default;
 
-} // namespace lunasvg
+} // namespace wxlunasvg

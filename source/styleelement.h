@@ -3,13 +3,13 @@
 
 #include "element.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class StyleElement final : public Element {
 public:
     StyleElement();
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // STYLEELEMENT_H

@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 using GradientStop = std::pair<double, Color>;
 using GradientStops = std::vector<GradientStop>;
@@ -72,6 +72,6 @@ private:
     plutovg_rect_t m_rect;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // CANVAS_H

@@ -8,7 +8,7 @@
 #include <map>
 #include <set>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 enum class LayoutId {
     Symbol,
@@ -374,6 +374,6 @@ private:
     const Element* m_element;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // LAYOUTCONTEXT_H
