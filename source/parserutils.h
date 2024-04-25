@@ -7,7 +7,7 @@
 #include <string>
 #include <algorithm>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 #define IS_ALPHA(c) ((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z')
 #define IS_NUM(c) ((c) >= '0' && (c) <= '9')
@@ -252,6 +252,6 @@ inline bool parseNumber(const char*& ptr, const char* end, T& number)
 
 } // namespace Utils
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // PARSERUTILS_H

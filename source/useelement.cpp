@@ -5,7 +5,7 @@
 #include "gelement.h"
 #include "svgelement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 UseElement::UseElement()
     : GraphicsElement(ElementID::Use)
@@ -124,4 +124,4 @@ void UseElement::build(const Document* document)
     Element::build(document);
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

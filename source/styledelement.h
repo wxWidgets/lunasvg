@@ -3,7 +3,7 @@
 
 #include "element.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class StyledElement : public Element {
 public:
@@ -47,6 +47,6 @@ public:
     bool isOverflowHidden() const;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // STYLEDELEMENT_H

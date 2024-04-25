@@ -6,7 +6,7 @@
 #include <array>
 #include <cstdint>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 enum class Display {
     Inline,
@@ -352,6 +352,6 @@ private:
     MarkerOrient m_type{MarkerOrient::Angle};
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // PROPERTY_H

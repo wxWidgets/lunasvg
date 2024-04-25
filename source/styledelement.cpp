@@ -1,7 +1,7 @@
 ﻿#include "styledelement.h"
 #include "parser.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 StyledElement::StyledElement(ElementID id)
     : Element(id)
@@ -174,4 +174,4 @@ bool StyledElement::isOverflowHidden() const
     return overflow() == Overflow::Hidden;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

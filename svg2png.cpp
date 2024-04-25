@@ -6,7 +6,7 @@
 
 #include <lunasvg.h>
 
-using namespace lunasvg;
+using namespace wxlunasvg;
 
 int help()
 {

@@ -3,13 +3,13 @@
 
 #include "graphicselement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class DefsElement final : public GraphicsElement {
 public:
     DefsElement();
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // DEFSELEMENT_H

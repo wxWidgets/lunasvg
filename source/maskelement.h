@@ -3,7 +3,7 @@
 
 #include "styledelement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class LayoutMask;
 
@@ -20,6 +20,6 @@ public:
     std::unique_ptr<LayoutMask> getMasker(LayoutContext* context);
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // MASKELEMENT_H

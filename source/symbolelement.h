@@ -3,7 +3,7 @@
 
 #include "styledelement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class SymbolElement final : public StyledElement {
 public:
@@ -17,6 +17,6 @@ public:
     PreserveAspectRatio preserveAspectRatio() const;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // SYMBOLELEMENT_H

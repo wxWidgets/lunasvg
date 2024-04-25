@@ -3,7 +3,7 @@
 
 #include "graphicselement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class Document;
 class LayoutSymbol;
@@ -23,6 +23,6 @@ public:
     void layout(LayoutContext* context, LayoutContainer* current) final;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // SVGELEMENT_H

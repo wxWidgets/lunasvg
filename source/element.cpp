@@ -13,7 +13,7 @@
 #include "styleelement.h"
 #include "parser.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 std::unique_ptr<Node> TextNode::clone() const
 {
@@ -230,4 +230,4 @@ std::unique_ptr<Node> Element::clone() const
     return element;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

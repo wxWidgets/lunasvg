@@ -1,7 +1,7 @@
 #include "gelement.h"
 #include "layoutcontext.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 GElement::GElement()
     : GraphicsElement(ElementID::G)
@@ -21,4 +21,4 @@ void GElement::layout(LayoutContext* context, LayoutContainer* current)
     current->addChildIfNotEmpty(std::move(group));
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

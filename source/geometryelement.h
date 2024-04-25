@@ -3,7 +3,7 @@
 
 #include "graphicselement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class LayoutShape;
 
@@ -94,6 +94,6 @@ public:
     Path path() const final;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // GEOMETRYELEMENT_H

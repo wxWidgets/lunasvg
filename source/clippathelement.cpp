@@ -2,7 +2,7 @@
 #include "parser.h"
 #include "layoutcontext.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 ClipPathElement::ClipPathElement()
     : GraphicsElement(ElementID::ClipPath)
@@ -28,4 +28,4 @@ std::unique_ptr<LayoutClipPath> ClipPathElement::getClipper(LayoutContext* conte
     return clipper;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

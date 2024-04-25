@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 LayoutObject::LayoutObject(Node* node, LayoutId id)
     : m_node(node), m_id(id)
@@ -707,4 +707,4 @@ LayoutBreaker::~LayoutBreaker()
     m_context->removeReference(m_element);
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

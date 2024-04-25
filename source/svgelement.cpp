@@ -2,7 +2,7 @@
 #include "parser.h"
 #include "layoutcontext.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 SVGElement::SVGElement()
     : GraphicsElement(ElementID::Svg)
@@ -121,4 +121,4 @@ void SVGElement::layout(LayoutContext* context, LayoutContainer* current)
     current->addChildIfNotEmpty(std::move(symbol));
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

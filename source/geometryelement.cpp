@@ -2,7 +2,7 @@
 #include "parser.h"
 #include "layoutcontext.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 GeometryElement::GeometryElement(ElementID id)
     : GraphicsElement(id)
@@ -294,4 +294,4 @@ Path RectElement::path() const
     return path;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

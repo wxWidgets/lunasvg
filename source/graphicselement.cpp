@@ -1,7 +1,7 @@
 #include "graphicselement.h"
 #include "parser.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 GraphicsElement::GraphicsElement(ElementID id)
     : StyledElement(id)
@@ -14,4 +14,4 @@ Transform GraphicsElement::transform() const
     return Parser::parseTransform(value);
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

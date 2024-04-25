@@ -3,7 +3,7 @@
 
 #include "graphicselement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class LayoutMarker;
 
@@ -23,6 +23,6 @@ public:
     std::unique_ptr<LayoutMarker> getMarker(LayoutContext* context);
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // MARKERELEMENT_H

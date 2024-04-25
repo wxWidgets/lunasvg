@@ -3,7 +3,7 @@
 
 #include "graphicselement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class LayoutClipPath;
 
@@ -15,6 +15,6 @@ public:
     std::unique_ptr<LayoutClipPath> getClipper(LayoutContext* context);
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // CLIPPATHELEMENT_H

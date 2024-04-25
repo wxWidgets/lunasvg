@@ -3,7 +3,7 @@
 
 #include "styledelement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class StopElement final : public StyledElement {
 public:
@@ -13,6 +13,6 @@ public:
     Color stopColorWithOpacity() const;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // STOPELEMENT_H

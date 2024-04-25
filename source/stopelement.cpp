@@ -1,7 +1,7 @@
 #include "stopelement.h"
 #include "parser.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 StopElement::StopElement()
     : StyledElement(ElementID::Stop)
@@ -21,4 +21,4 @@ Color StopElement::stopColorWithOpacity() const
     return color;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

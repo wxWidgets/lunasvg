@@ -1,7 +1,7 @@
 #include "symbolelement.h"
 #include "parser.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 SymbolElement::SymbolElement()
     : StyledElement(ElementID::Symbol)
@@ -44,4 +44,4 @@ PreserveAspectRatio SymbolElement::preserveAspectRatio() const
     return Parser::parsePreserveAspectRatio(value);
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

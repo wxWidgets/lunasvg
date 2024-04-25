@@ -4,7 +4,7 @@
 #include "styledelement.h"
 #include "canvas.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class LayoutObject;
 
@@ -326,6 +326,6 @@ private:
     bool m_hasPatternContentElement{false};
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // PAINTELEMENT_H

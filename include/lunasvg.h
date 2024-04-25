@@ -38,7 +38,7 @@
 #define LUNASVG_API
 #endif
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class Rect;
 class Matrix;
@@ -303,6 +303,6 @@ private:
     std::unique_ptr<LayoutSymbol> m_rootBox;
 };
 
-} //namespace lunasvg
+} //namespace wxlunasvg
 
 #endif // LUNASVG_H

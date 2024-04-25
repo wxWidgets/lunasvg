@@ -7,7 +7,7 @@
 #include "property.h"
 #include "element.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class SVGElement;
 class StyledElement;
@@ -177,6 +177,6 @@ private:
     uint32_t m_position{0};
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // PARSER_H
