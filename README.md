@@ -1,14 +1,12 @@
-[![Releases](https://img.shields.io/badge/Version-2.3.9-orange.svg)](https://github.com/sammycage/lunasvg/releases)
+[![Releases](https://img.shields.io/badge/Version-3.0.1-orange.svg)](https://github.com/sammycage/lunasvg/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/sammycage/lunasvg/blob/master/LICENSE)
-[![Build Status](https://github.com/sammycage/lunasvg/actions/workflows/ci.yml/badge.svg)](https://github.com/sammycage/lunasvg/actions)
+[![Build Status](https://github.com/sammycage/lunasvg/actions/workflows/main.yml/badge.svg)](https://github.com/sammycage/lunasvg/actions)
 
-> If you like the work lunasvg is doing please consider a small donation : [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.me/sammycage)
+# LunaSVG
 
-# LunaSVG - SVG rendering library in C++
+LunaSVG is an SVG rendering library in C++, designed to be lightweight and portable, offering efficient rendering and manipulation of Scalable Vector Graphics (SVG) files.
 
-![LunaSVG](https://github.com/sammycage/lunasvg/blob/master/luna.png)
-
-## Example
+## Basic Usage
 
 ```cpp
 #include <lunasvg.h>
@@ -18,58 +16,113 @@ using namespace lunasvg;
 int main()
 {
     auto document = Document::loadFromFile("tiger.svg");
+    if(document == nullptr)
+        return -1;
     auto bitmap = document->renderToBitmap();
-
-    // do something useful with the bitmap here.
-
+    if(bitmap.isNull())
+        return -1;
+    bitmap.writeToPng("tiger.png");
     return 0;
 }
 
 ```
 
+![tiger.png](https://github.com/user-attachments/assets/b87bbf92-6dd1-4b29-a890-99cfffce66b8)
+
 ## Features
 
-- Basic Shapes
-- Document Structures
-- Coordinate Systems, Transformations and Units
-- SolidColors
-- Gradients
-- Patterns
-- Masks
-- ClipPaths
-- Markers
-- StyleSheet
+LunaSVG supports nearly all graphical features outlined in the SVG 1.1 and SVG 1.2 Tiny specifications. The primary exceptions are animation, filters, and scripts. As LunaSVG is designed for static rendering, animation is unlikely to be supported in the future. However, support for filters may be added. It currently handles a wide variety of elements, including:
 
-## TODO
+`<a>` `<circle>` `<clipPath>` `<defs>` `<ellipse>` `<g>` `<image>` `<line>` `<linearGradient>` `<marker>` `<mask>` `<path>` `<pattern>` `<polygon>` `<polyline>` `<radialGradient>` `<rect>` `<stop>` `<style>` `<svg>` `<symbol>` `<text>` `<tspan>` `<use>`
 
-- Texts
-- Filters
-- Images
+## Installation
 
-## Build
+Follow the steps below to install LunaSVG using either [CMake](https://cmake.org/) or [Meson](https://mesonbuild.com/).
 
-```
+### Using CMake
+
+```bash
 git clone https://github.com/sammycage/lunasvg.git
 cd lunasvg
-mkdir build
-cd build
-cmake ..
-make -j 2
+cmake -B build .
+cmake --build build
+cmake --install build
 ```
 
-To install lunasvg library.
+After installing LunaSVG, you can include the library in your CMake projects using `find_package`:
 
+```cmake
+find_package(lunasvg REQUIRED)
+
+# Link LunaSVG to your target
+target_link_libraries(your_target_name PRIVATE lunasvg::lunasvg)
 ```
-make install
+
+Alternatively, you can use CMake's `FetchContent` to include LunaSVG directly in your project without needing to install it first:
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+    lunasvg
+    GIT_REPOSITORY https://github.com/sammycage/lunasvg.git
+    GIT_TAG master  # Specify the desired branch or tag
+)
+FetchContent_MakeAvailable(lunasvg)
+
+# Link LunaSVG to your target
+target_link_libraries(your_target_name PRIVATE lunasvg::lunasvg)
+```
+
+Replace `your_target_name` with the name of your executable or library target.
+
+### Using Meson
+
+```bash
+git clone https://github.com/sammycage/lunasvg.git
+cd lunasvg
+meson setup build
+meson compile -C build
+meson install -C build
+```
+
+After installing LunaSVG, you can include the library in your Meson projects using the `dependency` function:
+
+```meson
+lunasvg_dep = dependency('lunasvg', required: true)
+```
+
+Alternatively, add `lunasvg.wrap` to your `subprojects` directory to include LunaSVG directly in your project without needing to install it first. Create a file named `lunasvg.wrap` with the following content:
+
+```ini
+[wrap-git]
+url = https://github.com/sammycage/lunasvg.git
+revision = head
+depth = 1
+
+[provide]
+lunasvg = lunasvg_dep
+```
+
+You can retrieve the dependency from the wrap fallback with:
+
+```meson
+lunasvg_dep = dependency('lunasvg', fallback: ['lunasvg', 'lunasvg_dep'])
 ```
 
 ## Demo
 
-By enabling the `LUNASVG_BUILD_EXAMPLES` option during the CMake configuration, the lunasvg build includes a simple SVG to PNG converter for easy conversion of SVG files to PNG format.
+LunaSVG provides a command-line tool `svg2png` for converting SVG files to PNG format.
 
-Run Demo.
-```
+### Usage:
+```bash
 svg2png [filename] [resolution] [bgColor]
+```
+
+### Examples:
+```bash
+$ svg2png input.svg
+$ svg2png input.svg 512x512
+$ svg2png input.svg 512x512 0xff00ffff
 ```
 
 ## Projects Using LunaSVG
@@ -78,8 +131,12 @@ svg2png [filename] [resolution] [bgColor]
 - [PICsimLab](https://github.com/lcgamboa/picsimlab)
 - [MoneyManagerEx](https://github.com/moneymanagerex/moneymanagerex)
 - [RmlUi](https://github.com/mikke89/RmlUi)
-- [EKA2L1](https://github.com/EKA2L/EKA2L1)
+- [EKA2L1](https://github.com/EKA2L1/EKA2L1)
 - [ObEngine](https://github.com/ObEngine/ObEngine)
 - [OTTO](https://github.com/bitfieldaudio/OTTO)
 - [EmulationStation-DE](https://gitlab.com/es-de/emulationstation-de)
 - [SvgBooga](https://github.com/etodanik/SvgBooga/tree/main)
+- [Dear ImGui](https://github.com/ocornut/imgui)
+- [Multi Theft Auto: San Andreas](https://github.com/multitheftauto/mtasa-blue)
+- [eScada Solutions](https://www.escadasolutions.com)
+- [CARLA Simulator](https://carla.org/)
