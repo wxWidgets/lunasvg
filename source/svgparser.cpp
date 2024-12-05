@@ -2,7 +2,7 @@
 #include "svgelement.h"
 #include "svgparserutils.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 struct SimpleSelector;
 
@@ -899,4 +899,4 @@ void Document::applyStyleSheet(const std::string& content)
     }
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg
