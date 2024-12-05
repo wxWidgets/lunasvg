@@ -3,7 +3,7 @@
 
 #include "svgelement.h"
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class SVGMarkerPosition {
 public:
@@ -42,7 +42,6 @@ public:
     FillRule clip_rule() const { return m_clip_rule; }
 
     virtual Rect updateShape(Path& path) = 0;
-
     void updateMarkerPositions(SVGMarkerPositionList& positions, const SVGLayoutState& state);
     void render(SVGRenderState& state) const override;
 
@@ -134,6 +133,6 @@ private:
     SVGPath m_d;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // LUNASVG_SVGGEOMETRYELEMENT_H

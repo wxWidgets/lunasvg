@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 struct SimpleSelector;
 
@@ -939,4 +939,4 @@ ElementList Document::querySelectorAll(const std::string& content) const
     return elements;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

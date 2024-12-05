@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 inline const SVGTextNode* toSVGTextNode(const SVGNode* node)
 {
@@ -499,4 +499,4 @@ Rect SVGTextElement::boundingBox(bool includeStroke) const
     return boundingBox;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

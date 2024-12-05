@@ -4,7 +4,7 @@
 
 #include <set>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 SVGPaintElement::SVGPaintElement(Document* document, ElementID id)
     : SVGElement(document, id)
@@ -301,7 +301,6 @@ bool SVGPatternElement::applyPaint(SVGRenderState& state, float opacity) const
 
     SVGRenderState newState(this, &state, patternImageTransform, SVGRenderMode::Painting, patternImage);
     patternContentElement->renderChildren(newState);
-
     auto patternTransform = attributes.patternTransform();
     patternTransform.translate(patternRect.x, patternRect.y);
     patternTransform.scale(1.f / xScale, 1.f / yScale);
@@ -356,4 +355,4 @@ SVGPatternAttributes SVGPatternElement::collectPatternAttributes() const
     return attributes;
 }
 
-} // namespace lunasvg
+} // namespace wxlunasvg

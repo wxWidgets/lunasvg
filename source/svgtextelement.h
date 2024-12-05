@@ -5,7 +5,7 @@
 
 #include <optional>
 
-namespace lunasvg {
+namespace wxlunasvg {
 
 class SVGTextPositioningElement;
 class SVGTextElement;
@@ -140,6 +140,6 @@ private:
     std::u32string m_text;
 };
 
-} // namespace lunasvg
+} // namespace wxlunasvg
 
 #endif // LUNASVG_SVGTEXTELEMENT_H

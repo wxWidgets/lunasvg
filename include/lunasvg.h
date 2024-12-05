@@ -28,6 +28,14 @@
 #include <string>
 #include <vector>
 
+#ifndef WXMAKINGDLL
+    #define LUNASVG_BUILD_STATIC
+#endif
+
+#ifdef WXBUILDING
+    #define LUNASVG_BUILD
+#endif
+
 #if !defined(LUNASVG_BUILD_STATIC) && (defined(_WIN32) || defined(__CYGWIN__))
 #define LUNASVG_EXPORT __declspec(dllexport)
 #define LUNASVG_IMPORT __declspec(dllimport)
