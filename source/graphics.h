@@ -1,6 +1,10 @@
 #ifndef LUNASVG_GRAPHICS_H
 #define LUNASVG_GRAPHICS_H
 
+#if !(__cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L))
+    #error "C++17 or later is required for LunaSVG support."
+#endif
+
 #include <plutovg.h>
 
 #include <cstdint>
