@@ -23,6 +23,10 @@
 #ifndef LUNASVG_H
 #define LUNASVG_H
 
+#if !(__cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L))
+    #error "C++17 or later is required for LunaSVG support."
+#endif
+
 #include <cstdint>
 #include <memory>
 #include <string>
