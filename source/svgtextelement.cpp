@@ -6,7 +6,7 @@
 
 namespace wxlunasvg {
 
-static float calculateBaselineOffset(const SVGTextPositioningElement* element)
+static float calculateBaselineOffset(const SVGTextPositioningElement* /* element */)
 {
     return 0.f;
 }
