@@ -459,7 +459,7 @@ void SVGElement::renderChildren(SVGRenderState& state) const
     }
 }
 
-void SVGElement::render(SVGRenderState& state) const
+void SVGElement::render(SVGRenderState& /* state */) const
 {
 }
 
