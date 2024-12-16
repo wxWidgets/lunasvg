@@ -58,7 +58,7 @@ SVGTextNode::SVGTextNode(Document* document)
 {
 }
 
-std::unique_ptr<SVGNode> SVGTextNode::clone(bool deep) const
+std::unique_ptr<SVGNode> SVGTextNode::clone(bool /* deep */) const
 {
     auto node = std::make_unique<SVGTextNode>(document());
     node->setData(m_data);
@@ -455,7 +455,7 @@ void SVGElement::renderChildren(SVGRenderState& state) const
     }
 }
 
-void SVGElement::render(SVGRenderState& state) const
+void SVGElement::render(SVGRenderState& /* state */) const
 {
 }
 
