@@ -25,6 +25,18 @@
 
 #include <stdbool.h>
 
+/*
+    For wxWidgets, the plutovg code is not publicly exposed, so it is only used
+    by the lunasvg library. As such, there is no need to build a shared library
+    version of it even if lunasvg is being built as a shared library.
+
+    The following two #defines are specifically for wxWidgets to ensure that
+    the plutovg library is built as a static library.
+*/
+
+#define PLUTOVG_BUILD
+#define PLUTOVG_BUILD_STATIC
+
 #ifdef __cplusplus
 extern "C" {
 #endif

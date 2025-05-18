@@ -16,7 +16,6 @@
 #include <string>
 #include <map>
 
-namespace wxlunasvg {
 // Disable warnings about possible loss of data when converting int to float
 // Disable warnings about possible loss of data when converting size_t to int
 #ifdef _MSC_VER

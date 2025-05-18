@@ -142,6 +142,7 @@ public:
 
     SVGElement* previousElement() const;
     SVGElement* nextElement() const;
+
     SVGNode* addChild(std::unique_ptr<SVGNode> child);
     SVGNode* firstChild() const;
     SVGNode* lastChild() const;
@@ -452,6 +453,7 @@ public:
 
     void applyClipMask(SVGRenderState& state) const;
     void applyClipPath(SVGRenderState& state) const;
+
     bool requiresMasking() const;
 
 private:
@@ -472,6 +474,7 @@ public:
     Rect maskRect(const SVGElement* element) const;
     Rect maskBoundingBox(const SVGElement* element) const;
     void applyMask(SVGRenderState& state) const;
+
     void layoutElement(const SVGLayoutState& state) final;
 
 private:
