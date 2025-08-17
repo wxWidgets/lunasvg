@@ -59,7 +59,7 @@ void SVGTextNode::setData(const std::string& data)
     m_data.assign(data);
 }
 
-std::unique_ptr<SVGNode> SVGTextNode::clone(bool deep) const
+std::unique_ptr<SVGNode> SVGTextNode::clone(bool /* deep unused */) const
 {
     auto node = std::make_unique<SVGTextNode>(document());
     node->setData(m_data);

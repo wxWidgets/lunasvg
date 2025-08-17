@@ -4,6 +4,10 @@
 #include <assert.h>
 #include <limits.h>
 
+#ifdef _MSC_VER
+#pragma warning(disable:4100)  /* unreferenced formal parameter */
+#endif
+
 #define COLOR_TABLE_SIZE 1024
 typedef struct {
     plutovg_matrix_t matrix;

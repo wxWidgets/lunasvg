@@ -102,7 +102,7 @@ plutovg_surface_t* plutovg_surface_load_from_image_base64(const char* data, int 
     size_t didx = 0;
 
     if(length == -1)
-        length = strlen(data);
+        length = (int) strlen(data);
     output_data = malloc(length);
     if(output_data == NULL)
         return NULL;
@@ -142,7 +142,7 @@ plutovg_surface_t* plutovg_surface_load_from_image_base64(const char* data, int 
         output_data[didx] = (((output_data[sidx + 1] << 4) & 255) | ((output_data[sidx + 2] >> 2) & 017));
     }
 
-    surface = plutovg_surface_load_from_image_data(output_data, output_length);
+    surface = plutovg_surface_load_from_image_data(output_data, (int) output_length);
 cleanup:
     free(output_data);
     return surface;
@@ -266,10 +266,10 @@ void plutovg_convert_argb_to_rgba(unsigned char* dst, const unsigned char* src, 
                     b = (b * 255) / a;
                 }
 
-                *dst_row++ = r;
-                *dst_row++ = g;
-                *dst_row++ = b;
-                *dst_row++ = a;
+                *dst_row++ = (unsigned char) r;
+                *dst_row++ = (unsigned char) g;
+                *dst_row++ = (unsigned char) b;
+                *dst_row++ = (unsigned char) a;
             }
         }
     }

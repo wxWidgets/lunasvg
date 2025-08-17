@@ -58,6 +58,10 @@
 #include "plutovg-ft-raster.h"
 #include "plutovg-ft-math.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4324)  /* structure was padded due to alignment specifier */
+#endif
+
 #define PVG_FT_BEGIN_STMNT  do {
 #define PVG_FT_END_STMNT    } while ( 0 )
 
@@ -1877,14 +1881,14 @@ void PVG_FT_Outline_Get_CBox(const PVG_FT_Outline* outline, PVG_FT_BBox* acbox)
       TWorker worker;
       worker.skip_spans = 0;
       int rendered_spans = 0;
-      int error = gray_raster_render(&worker, stack, length, params);
+      int error = gray_raster_render(&worker, stack, (long) length, params);
       while(error == ErrRaster_OutOfMemory) {
           if(worker.skip_spans < 0)
               rendered_spans += -worker.skip_spans;
           worker.skip_spans = rendered_spans;
           length *= 2;
           void* heap = malloc(length);
-          error = gray_raster_render(&worker, heap, length, params);
+          error = gray_raster_render(&worker, heap, (long) length, params);
           free(heap);
       }
   }

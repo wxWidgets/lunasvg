@@ -3,6 +3,10 @@
 
 #include <assert.h>
 
+#ifdef _MSC_VER
+#pragma warning(disable:4100)  /* unreferenced formal parameter */
+#endif
+
 void plutovg_path_iterator_init(plutovg_path_iterator_t* it, const plutovg_path_t* path)
 {
     it->elements = path->elements.data;
@@ -749,7 +753,7 @@ static inline bool parse_path_coordinates(const char** begin, const char* end, f
 bool plutovg_path_parse(plutovg_path_t* path, const char* data, int length)
 {
     if(length == -1)
-        length = strlen(data);
+        length = (int) strlen(data);
     const char* it = data;
     const char* end = it + length;
 

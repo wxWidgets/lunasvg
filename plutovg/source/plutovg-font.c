@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <assert.h>
 
+#ifdef _MSC_VER
+#pragma warning(disable:4100)  /* unreferenced formal parameter */
+#endif
+
 #define STBTT_STATIC
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "plutovg-stb-truetype.h"

@@ -168,7 +168,7 @@ bool plutovg_matrix_parse(plutovg_matrix_t* matrix, const char* data, int length
     float values[6];
     plutovg_matrix_init_identity(matrix);
     if(length == -1)
-        length = strlen(data);
+        length = (int) strlen(data);
     const char* it = data;
     const char* end = it + length;
     bool has_trailing_comma = false;

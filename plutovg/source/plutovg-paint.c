@@ -139,7 +139,7 @@ static bool parse_alpha_component(const char** begin, const char* end, float* co
 int plutovg_color_parse(plutovg_color_t* color, const char* data, int length)
 {
     if(length == -1)
-        length = strlen(data);
+        length = (int) strlen(data);
     const char* it = data;
     const char* end = it + length;
     plutovg_skip_ws(&it, end);
@@ -148,7 +148,7 @@ int plutovg_color_parse(plutovg_color_t* color, const char* data, int length)
         const char* begin = it;
         while(it < end && isxdigit(*it))
             ++it;
-        int count = it - begin;
+        int count = (int) (it - begin);
         if(count == 3 || count == 4) {
             r = hex_byte(begin[0], begin[0]);
             g = hex_byte(begin[1], begin[1]);
@@ -172,7 +172,7 @@ int plutovg_color_parse(plutovg_color_t* color, const char* data, int length)
         int name_length = 0;
         char name[MAX_NAME + 1];
         while(it < end && name_length < MAX_NAME && isalpha(*it))
-            name[name_length++] = tolower(*it++);
+            name[name_length++] = (char) tolower(*it++);
         name[name_length] = '\0';
 
         if(strcmp(name, "transparent") == 0) {
@@ -379,7 +379,7 @@ int plutovg_color_parse(plutovg_color_t* color, const char* data, int length)
     }
 
     plutovg_skip_ws(&it, end);
-    return it - data;
+    return (int) (it - data);
 }
 
 static void* plutovg_paint_create(plutovg_paint_type_t type, size_t size)
