@@ -305,6 +305,7 @@ bool SVGPatternElement::applyPaint(SVGRenderState& state, float opacity) const
 
     SVGRenderState newState(this, &state, patternImageTransform, SVGRenderMode::Painting, patternImage);
     patternContentElement->renderChildren(newState);
+
     auto patternTransform = attributes.patternTransform();
     patternTransform.translate(patternRect.x, patternRect.y);
     patternTransform.scale(1.f / xScale, 1.f / yScale);
