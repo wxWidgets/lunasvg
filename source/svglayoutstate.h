@@ -26,7 +26,10 @@ public:
     float stroke_miterlimit() const { return m_stroke_miterlimit; }
     float font_size() const { return m_font_size; }
 
-    const BaselineShift& baseline_shit() const { return m_baseline_shit; }
+    const Length& letter_spacing() const { return m_letter_spacing; }
+    const Length& word_spacing() const { return m_word_spacing; }
+
+    const BaselineShift& baseline_shift() const { return m_baseline_shift; }
     const Length& stroke_width() const { return m_stroke_width; }
     const Length& stroke_dashoffset() const { return m_stroke_dashoffset; }
     const LengthList& stroke_dasharray() const { return m_stroke_dasharray; }
@@ -45,15 +48,19 @@ public:
 
     TextAnchor text_anchor() const { return m_text_anchor; }
     WhiteSpace white_space() const { return m_white_space; }
+    WritingMode writing_mode() const { return m_writing_mode; }
+    TextOrientation text_orientation() const { return m_text_orientation; }
     Direction direction() const { return m_direction; }
 
     Display display() const { return m_display; }
     Visibility visibility() const { return m_visibility; }
     Overflow overflow() const { return m_overflow; }
+    PointerEvents pointer_events() const { return m_pointer_events; }
     MaskType mask_type() const { return m_mask_type; }
 
     const std::string& mask() const { return m_mask; }
     const std::string& clip_path() const { return m_clip_path; }
+    const std::string& filter() const { return m_filter; }
     const std::string& marker_start() const { return m_marker_start; }
     const std::string& marker_mid() const { return m_marker_mid; }
     const std::string& marker_end() const { return m_marker_end; }
@@ -78,7 +85,10 @@ private:
     float m_stroke_miterlimit = 4.f;
     float m_font_size = 12.f;
 
-    BaselineShift m_baseline_shit;
+    Length m_letter_spacing{0.f, LengthUnits::None};
+    Length m_word_spacing{0.f, LengthUnits::None};
+
+    BaselineShift m_baseline_shift;
     Length m_stroke_width{1.f, LengthUnits::None};
     Length m_stroke_dashoffset{0.f, LengthUnits::None};
     LengthList m_stroke_dasharray;
@@ -97,15 +107,19 @@ private:
 
     TextAnchor m_text_anchor = TextAnchor::Start;
     WhiteSpace m_white_space = WhiteSpace::Default;
+    WritingMode m_writing_mode = WritingMode::Horizontal;
+    TextOrientation m_text_orientation = TextOrientation::Mixed;
     Direction m_direction = Direction::Ltr;
 
     Display m_display = Display::Inline;
     Visibility m_visibility = Visibility::Visible;
     Overflow m_overflow = Overflow::Visible;
+    PointerEvents m_pointer_events = PointerEvents::Auto;
     MaskType m_mask_type = MaskType::Luminance;
 
     std::string m_mask;
     std::string m_clip_path;
+    std::string m_filter;
     std::string m_marker_start;
     std::string m_marker_mid;
     std::string m_marker_end;

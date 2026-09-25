@@ -55,6 +55,23 @@ void plutovg_span_buffer_copy(plutovg_span_buffer_t* span_buffer, const plutovg_
     span_buffer->h = source->h;
 }
 
+bool plutovg_span_buffer_contains(const plutovg_span_buffer_t* span_buffer, float x, float y)
+{
+    const int ix = (int)floorf(x);
+    const int iy = (int)floorf(y);
+
+    for(int i = 0; i < span_buffer->spans.size; i++) {
+        plutovg_span_t* span = &span_buffer->spans.data[i];
+        if(span->y != iy)
+            continue;
+        if(ix >= span->x && ix < (span->x + span->len)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static void plutovg_span_buffer_update_extents(plutovg_span_buffer_t* span_buffer)
 {
     if(span_buffer->w != -1 && span_buffer->h != -1)
@@ -86,10 +103,10 @@ static void plutovg_span_buffer_update_extents(plutovg_span_buffer_t* span_buffe
 void plutovg_span_buffer_extents(plutovg_span_buffer_t* span_buffer, plutovg_rect_t* extents)
 {
     plutovg_span_buffer_update_extents(span_buffer);
-    extents->x = (float) span_buffer->x;
-    extents->y = (float) span_buffer->y;
-    extents->w = (float) span_buffer->w;
-    extents->h = (float) span_buffer->h;
+    extents->x = span_buffer->x;
+    extents->y = span_buffer->y;
+    extents->w = span_buffer->w;
+    extents->h = span_buffer->h;
 }
 
 void plutovg_span_buffer_intersect(plutovg_span_buffer_t* span_buffer, const plutovg_span_buffer_t* a, const plutovg_span_buffer_t* b)

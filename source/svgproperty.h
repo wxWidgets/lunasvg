@@ -10,23 +10,36 @@ namespace wxlunasvg {
 enum class PropertyID : uint8_t {
     Unknown = 0,
     Alignment_Baseline,
+    Amplitude,
+    Azimuth,
+    BaseFrequency,
     Baseline_Shift,
+    Bias,
     Class,
-    ClipPathUnits,
     Clip_Path,
     Clip_Rule,
+    ClipPathUnits,
     Color,
     Cx,
     Cy,
     D,
     Direction,
     Display,
+    DiffuseConstant,
+    Divisor,
     Dominant_Baseline,
     Dx,
     Dy,
+    EdgeMode,
+    Elevation,
+    Exponent,
     Fill,
     Fill_Opacity,
     Fill_Rule,
+    Filter,
+    FilterUnits,
+    Flood_Color,
+    Flood_Opacity,
     Font_Family,
     Font_Size,
     Font_Style,
@@ -38,34 +51,66 @@ enum class PropertyID : uint8_t {
     Height,
     Href,
     Id,
+    In,
+    In2,
+    Intercept,
+    K1,
+    K2,
+    K3,
+    K4,
+    KernelMatrix,
     LengthAdjust,
-    MarkerHeight,
-    MarkerUnits,
-    MarkerWidth,
+    LimitingConeAngle,
+    Lighting_Color,
+    Letter_Spacing,
     Marker_End,
     Marker_Mid,
     Marker_Start,
+    MarkerHeight,
+    MarkerUnits,
+    MarkerWidth,
     Mask,
+    Mask_Type,
     MaskContentUnits,
     MaskUnits,
-    Mask_Type,
+    Mode,
+    NumOctaves,
     Offset,
     Opacity,
+    Operator,
+    Order,
     Orient,
+
     Overflow,
     PatternContentUnits,
     PatternTransform,
     PatternUnits,
+    Pointer_Events,
     Points,
+    PointsAtX,
+    PointsAtY,
+    PointsAtZ,
+    PreserveAlpha,
     PreserveAspectRatio,
+    PrimitiveUnits,
     R,
+    Radius,
     RefX,
     RefY,
+    Result,
     Rotate,
     Rx,
     Ry,
+    Scale,
+    Seed,
+    Slope,
+    SpecularConstant,
+    SpecularExponent,
     SpreadMethod,
+    StdDeviation,
+    StitchTiles,
     Stop_Color,
+    SurfaceScale,
     Stop_Opacity,
     Stroke,
     Stroke_Dasharray,
@@ -76,23 +121,34 @@ enum class PropertyID : uint8_t {
     Stroke_Opacity,
     Stroke_Width,
     Style,
-    TextLength,
     Text_Anchor,
+    Text_Orientation,
+    TextLength,
+    TableValues,
+    TargetX,
+    TargetY,
     Transform,
+    Type,
+    Values,
     ViewBox,
     Visibility,
-    WhiteSpace,
+    White_Space,
     Width,
+    Word_Spacing,
+    Writing_Mode,
     X,
     X1,
     X2,
+    XChannelSelector,
     Y,
     Y1,
-    Y2
+    Y2,
+    YChannelSelector,
+    Z
 };
 
-PropertyID propertyid(const std::string_view& name);
-PropertyID csspropertyid(const std::string_view& name);
+PropertyID propertyid(std::string_view name);
+PropertyID csspropertyid(std::string_view name);
 
 class SVGElement;
 
@@ -156,6 +212,20 @@ enum class Overflow : uint8_t {
     Hidden
 };
 
+enum class PointerEvents : uint8_t {
+    None,
+    Auto,
+    Stroke,
+    Fill,
+    Painted,
+    Visible,
+    VisibleStroke,
+    VisibleFill,
+    VisiblePainted,
+    BoundingBox,
+    All
+};
+
 enum class FontStyle : uint8_t {
     Normal,
     Italic
@@ -205,6 +275,16 @@ enum class TextAnchor : uint8_t {
 enum class WhiteSpace : uint8_t {
     Default,
     Preserve
+};
+
+enum class WritingMode : uint8_t {
+    Horizontal,
+    Vertical
+};
+
+enum class TextOrientation : uint8_t {
+    Mixed,
+    Upright
 };
 
 enum class Direction : uint8_t {

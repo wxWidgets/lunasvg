@@ -2,6 +2,7 @@
 #include "svglayoutstate.h"
 #include "svgrenderstate.h"
 
+#include <cmath>
 #include <set>
 
 namespace wxlunasvg {
@@ -115,9 +116,13 @@ SVGLinearGradientAttributes SVGLinearGradientElement::collectGradientAttributes(
 static GradientStops buildGradientStops(const SVGGradientElement* element, float opacity)
 {
     GradientStops gradientStops;
-    for(const auto& child : element->children()) {
-        if(auto tmp_element = toSVGElement(child); tmp_element && tmp_element->id() == ElementID::Stop) {
-            auto stopElement = static_cast<SVGStopElement*>(tmp_element);
+
+    const auto& children = element->children();
+    gradientStops.reserve(children.size());
+    for(const auto& child : children) {
+        auto childElement = toSVGElement(child);
+        if(childElement && childElement->id() == ElementID::Stop) {
+            auto stopElement = static_cast<SVGStopElement*>(childElement);
             gradientStops.push_back(stopElement->gradientStop(opacity));
         }
     }
@@ -301,9 +306,10 @@ bool SVGPatternElement::applyPaint(SVGRenderState& state, float opacity) const
 
     SVGRenderState newState(this, &state, patternImageTransform, SVGRenderMode::Painting, patternImage);
     patternContentElement->renderChildren(newState);
+
     auto patternTransform = attributes.patternTransform();
     patternTransform.translate(patternRect.x, patternRect.y);
-    patternTransform.scale(1.f / xScale, 1.f / yScale);
+    patternTransform.scale(patternRect.w / patternImage->width(), patternRect.h / patternImage->height());
     state->setTexture(*patternImage, TextureType::Tiled, opacity, patternTransform);
     return true;
 }

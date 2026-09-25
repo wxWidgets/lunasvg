@@ -18,7 +18,7 @@ static plutovg_surface_t* plutovg_surface_create_uninitialized(int width, int he
     plutovg_surface_t* surface = malloc(size + sizeof(plutovg_surface_t));
     if(surface == NULL)
         return NULL;
-    surface->ref_count = 1;
+    plutovg_init_reference(surface);
     surface->width = width;
     surface->height = height;
     surface->stride = width * 4;
@@ -37,7 +37,7 @@ plutovg_surface_t* plutovg_surface_create(int width, int height)
 plutovg_surface_t* plutovg_surface_create_for_data(unsigned char* data, int width, int height, int stride)
 {
     plutovg_surface_t* surface = malloc(sizeof(plutovg_surface_t));
-    surface->ref_count = 1;
+    plutovg_init_reference(surface);
     surface->width = width;
     surface->height = height;
     surface->stride = stride;
@@ -102,7 +102,7 @@ plutovg_surface_t* plutovg_surface_load_from_image_base64(const char* data, int 
     size_t didx = 0;
 
     if(length == -1)
-        length = (int) strlen(data);
+        length = strlen(data);
     output_data = malloc(length);
     if(output_data == NULL)
         return NULL;
@@ -142,7 +142,7 @@ plutovg_surface_t* plutovg_surface_load_from_image_base64(const char* data, int 
         output_data[didx] = (((output_data[sidx + 1] << 4) & 255) | ((output_data[sidx + 2] >> 2) & 017));
     }
 
-    surface = plutovg_surface_load_from_image_data(output_data, (int) output_length);
+    surface = plutovg_surface_load_from_image_data(output_data, output_length);
 cleanup:
     free(output_data);
     return surface;
@@ -150,26 +150,20 @@ cleanup:
 
 plutovg_surface_t* plutovg_surface_reference(plutovg_surface_t* surface)
 {
-    if(surface == NULL)
-        return NULL;
-    ++surface->ref_count;
+    plutovg_increment_reference(surface);
     return surface;
 }
 
 void plutovg_surface_destroy(plutovg_surface_t* surface)
 {
-    if(surface == NULL)
-        return;
-    if(--surface->ref_count == 0) {
+    if(plutovg_destroy_reference(surface)) {
         free(surface);
     }
 }
 
 int plutovg_surface_get_reference_count(const plutovg_surface_t* surface)
 {
-    if(surface)
-        return surface->ref_count;
-    return 0;
+    return plutovg_get_reference_count(surface);
 }
 
 unsigned char* plutovg_surface_get_data(const plutovg_surface_t* surface)
@@ -266,10 +260,10 @@ void plutovg_convert_argb_to_rgba(unsigned char* dst, const unsigned char* src, 
                     b = (b * 255) / a;
                 }
 
-                *dst_row++ = (unsigned char) r;
-                *dst_row++ = (unsigned char) g;
-                *dst_row++ = (unsigned char) b;
-                *dst_row++ = (unsigned char) a;
+                *dst_row++ = r;
+                *dst_row++ = g;
+                *dst_row++ = b;
+                *dst_row++ = a;
             }
         }
     }
