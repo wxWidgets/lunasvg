@@ -1,2 +1,3 @@
 /build
 *.user
+scripts/__pycache__
