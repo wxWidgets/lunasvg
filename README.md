@@ -1,6 +1,7 @@
 [![Releases](https://img.shields.io/badge/Version-3.3.0-orange.svg)](https://github.com/sammycage/lunasvg/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/sammycage/lunasvg/blob/master/LICENSE)
 [![Build Status](https://github.com/sammycage/lunasvg/actions/workflows/main.yml/badge.svg)](https://github.com/sammycage/lunasvg/actions)
+[![Tests](https://github.com/wxWidgets/lunasvg/actions/workflows/tests.yml/badge.svg)](https://github.com/wxWidgets/lunasvg/actions/workflows/tests.yml)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.me/sammycage)
 
 # LunaSVG

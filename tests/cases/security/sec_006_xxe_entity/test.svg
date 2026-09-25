@@ -1,0 +1,27 @@
+<!DOCTYPE svg [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+  <!ENTITY xxe2 SYSTEM "file:///C:/Windows/win.ini">
+  <!ENTITY lol "lol">
+  <!ENTITY lol2 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+  <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+  <!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
+]>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- SEC-006: XXE and Entity Expansion Test -->
+  <!-- This SVG attempts to read local files and perform entity expansion -->
+  
+  <!-- Attempt to read /etc/passwd (Linux) or win.ini (Windows) -->
+  <text x="10" y="30" font-size="12" fill="red">XXE Test: &xxe;</text>
+  <text x="10" y="50" font-size="12" fill="red">XXE Test 2: &xxe2;</text>
+  
+  <!-- Attempt entity expansion (simplified billion laughs) -->
+  <text x="10" y="80" font-size="12" fill="blue">Entity: &lol4;</text>
+  
+  <rect x="10" y="100" width="180" height="90" fill="yellow" stroke="black"/>
+  <text x="100" y="145" font-size="14" text-anchor="middle">
+    If you see file contents above,
+  </text>
+  <text x="100" y="165" font-size="14" text-anchor="middle">
+    XXE vulnerability exists!
+  </text>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="32700 32700 32700 32700">
+  <!-- SEC-001: Integer Overflow Test -->
+  <!-- This SVG attempts to trigger integer overflow in canvas creation -->
+  <!-- Large viewBox coordinates + dimensions may overflow when computing canvas bounds -->
+  <rect x="32700" y="32700" width="32700" height="32700" fill="red"/>
+</svg>

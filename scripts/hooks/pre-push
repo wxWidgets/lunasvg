@@ -1,0 +1,35 @@
+#!/bin/sh
+# wxlunasvg pre-push guard.
+#
+# Tracked via `git config core.hooksPath scripts/hooks` (see scripts/README.md).
+#
+# Topology:
+#   origin/master  : strict read-only mirror of upstream/master (fast-forward only)
+#   origin/wx      : integration branch wxWidgets consumes; every PR targets it
+#   feature branch : short-lived, cut from wx, pushed to origin
+#
+# Pushing to `upstream` (sammycage/lunasvg) is never part of this workflow.
+# This hook refuses it, so the act must be deliberate: bypass by temporarily
+# overriding the hook path, e.g.
+#   git -c core.hooksPath=/dev/null push upstream <ref>
+
+remote_name="$1"
+remote_url="$2"
+
+case "$remote_name" in
+upstream)
+    echo "pre-push: REFUSED - '$remote_name' is the read-only upstream remote." >&2
+    echo "pre-push: push to 'origin' (wxWidgets/lunasvg) and open a PR against 'wx'." >&2
+    exit 1
+    ;;
+esac
+
+case "$remote_url" in
+*sammycage/lunasvg*)
+    echo "pre-push: REFUSED - upstream repository '$remote_url' is read-only for us." >&2
+    echo "pre-push: push to 'origin' (wxWidgets/lunasvg) and open a PR against 'wx'." >&2
+    exit 1
+    ;;
+esac
+
+exit 0

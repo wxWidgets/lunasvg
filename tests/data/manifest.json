@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "comment": "Per-case overrides for the golden-image corpus. Populated in Phase 4 (tests/cases/**). Consumed by tests/tools/bless.py (regenerate baselines), tests/tools/run_cases.py (the gated CTest test wxlunasvg_cases) and, via the expectedStatus field, the corpus tracker. The C++ engine (tests/support/compare.{h,cpp}) takes explicit options, so this file needs no C++ JSON parser.",
+  "caseKeyBase": "Paths are relative to the repository root, e.g. tests/cases/bugs/bug_001_foo.",
+  "blessPlatform": "linux",
+  "blessPlatformNote": "Baselines are only ever blessed on Linux CI (plan decision 2b #12). tests/tools/bless.py refuses to run elsewhere without --allow-foreign-platform.",
+  "defaults": {
+    "width": 512,
+    "height": 512,
+    "background": "00000000",
+    "tolerance": 0,
+    "checkAlpha": true,
+    "maxDelta": 255,
+    "maxDifferingPixelRatio": 0.0,
+    "expectedStatus": "pass"
+  },
+  "fieldNotes": {
+    "width": "Render width in pixels.",
+    "height": "Render height in pixels.",
+    "background": "8-digit RRGGBBAA background colour passed to renderToBitmap; 00000000 is transparent.",
+    "tolerance": "Per-channel tolerance; mirrors wx RGBSimilarTo/RGBASimilarTo.",
+    "checkAlpha": "false compares RGB only (RGBSimilarTo); true compares RGBA (RGBASimilarTo).",
+    "maxDelta": "Hard cap on the worst differing-channel delta (255 disables the cap).",
+    "maxDifferingPixelRatio": "Largest tolerated fraction of differing pixels.",
+    "expectedStatus": "pass | known-fail | skip; tracked per case and enforced by tests/tools/run_cases.py (and honoured by bless.py, which never blesses a skipped case).",
+    "skipReason": "Only meaningful when expectedStatus is 'skip': why the case is not exercised."
+  },
+  "tolerancePolicies": {
+    "exact": {
+      "description": "Flat fills and geometry: every decoded pixel must agree.",
+      "tolerance": 0,
+      "maxDifferingPixelRatio": 0.0
+    },
+    "antialiased": {
+      "description": "Small per-channel tolerance for anti-aliased edges only, with a cap so a whole-region regression still fails.",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    }
+  },
+  "expectedStatusValues": ["pass", "known-fail", "skip"],
+  "coverageGap": "Text-bearing vectors are excluded from the golden set (plan decision 2b #9/§4): LUNASVG_DISABLE_LOAD_SYSTEM_FONTS makes host fonts unavailable but lunasvg still has no bundled-font-file API, so text rendering is not yet deterministic across platforms.",
+  "cases": {
+    "tests/cases/bugs/bug_001_pseudo_class_first_of_type": {
+      "expectedStatus": "pass"
+    },
+    "tests/cases/bugs/bug_002_pseudo_class_last_of_type": {
+      "expectedStatus": "pass"
+    },
+    "tests/cases/regression/basic_rendering": {
+      "expectedStatus": "pass"
+    },
+    "tests/cases/features_svg12/filters/feflood_basic": {
+      "expectedStatus": "pass"
+    },
+    "tests/cases/features_svg12/filters/feoffset_merge_basic": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_blend_modes": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_chained_primitives": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_color_matrix_saturate": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_composite_operators": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_drop_shadow": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_gaussian_blur_basic": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_lighting_combined": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_morphology_erode_dilate": {
+      "expectedStatus": "skip",
+      "skipReason": "text vector: excluded from the golden set until lunasvg gains a font-file API (plan decision 2b #9)"
+    },
+    "tests/cases/features_svg12/filters/filter_region_clipping": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/features_svg12/filters/filter_turbulence_noise": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/filters/drop_shadow": {
+      "expectedStatus": "pass",
+      "tolerance": 2,
+      "maxDelta": 8,
+      "maxDifferingPixelRatio": 0.002
+    },
+    "tests/cases/filters/composite_ops": {
+      "expectedStatus": "skip",
+      "skipReason": "text vector: excluded from the golden set until lunasvg gains a font-file API (plan decision 2b #9)"
+    },
+    "tests/cases/filters/color_matrix": {
+      "expectedStatus": "skip",
+      "skipReason": "text vector: excluded from the golden set until lunasvg gains a font-file API (plan decision 2b #9)"
+    },
+    "tests/cases/filters/blend_modes": {
+      "expectedStatus": "skip",
+      "skipReason": "text vector: excluded from the golden set until lunasvg gains a font-file API (plan decision 2b #9)"
+    },
+    "tests/cases/security/sec_001_integer_overflow": {
+      "expectedStatus": "skip",
+      "skipReason": "canvas-size integer overflow; not rendered until the hardening lands"
+    },
+    "tests/cases/security/sec_002_deep_nesting": {
+      "expectedStatus": "skip",
+      "skipReason": "150-level nesting may overflow the stack; not rendered until the hardening lands"
+    },
+    "tests/cases/security/sec_003_excessive_path_data": {
+      "expectedStatus": "skip",
+      "skipReason": "100k+ path segments may exhaust memory or hang; not rendered until the hardening lands"
+    },
+    "tests/cases/security/sec_004_redos_css": {
+      "expectedStatus": "skip",
+      "skipReason": "pathological CSS selector may hang; not rendered until the hardening lands"
+    },
+    "tests/cases/security/sec_005_use_recursion": {
+      "expectedStatus": "skip",
+      "skipReason": "50-level <use> recursion may overflow the stack; not rendered until the hardening lands"
+    },
+    "tests/cases/security/sec_006_xxe_entity": {
+      "expectedStatus": "skip",
+      "skipReason": "external entity / XXE probe; must not read local files"
+    },
+    "tests/cases/security/sec_007_base64_decoder": {
+      "expectedStatus": "skip",
+      "skipReason": "oversized base64 data URI may over-allocate; not rendered until the hardening lands"
+    },
+    "tests/cases/security/sec_008_gradient_stops": {
+      "expectedStatus": "skip",
+      "skipReason": "1000 gradient stops; not rendered until the hardening lands"
+    },
+    "tests/cases/security/sec_009_font_loading": {
+      "expectedStatus": "skip",
+      "skipReason": "system font path probing; not rendered until the hardening lands"
+    }
+  }
+}

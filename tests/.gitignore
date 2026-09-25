@@ -1,0 +1,5 @@
+# Bytecode from the Python test tooling (tests/tools/*.py, tests/run_tests.py).
+# Rendered output and diff PNGs never land here: the runners write into the
+# CMake build directory (already ignored by the root .gitignore).
+__pycache__/
+*.py[cod]

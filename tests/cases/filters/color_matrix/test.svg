@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200">
+  <!-- Test feColorMatrix types -->
+  <defs>
+    <filter id="saturate">
+      <feColorMatrix type="saturate" values="0.3"/>
+    </filter>
+    <filter id="hueRotate">
+      <feColorMatrix type="hueRotate" values="90"/>
+    </filter>
+    <filter id="luminanceToAlpha">
+      <feColorMatrix type="luminanceToAlpha"/>
+    </filter>
+  </defs>
+  <rect x="10" y="50" width="100" height="100" fill="#44cc44" filter="url(#saturate)"/>
+  <rect x="140" y="50" width="100" height="100" fill="#44cc44" filter="url(#hueRotate)"/>
+  <rect x="280" y="50" width="100" height="100" fill="#44cc44" filter="url(#luminanceToAlpha)"/>
+  <text x="30" y="30" font-size="12">saturate(0.3)</text>
+  <text x="150" y="30" font-size="12">hueRotate(90)</text>
+  <text x="290" y="30" font-size="12">luminanceToAlpha</text>
+</svg>

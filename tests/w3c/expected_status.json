@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "comment": "W3C SVG 1.1 compliance tracker for the vendored reference-image subset (plan Phase 4). W3C results are report-only and never a merge gate (plan decision 2b #13); run tests/tools/run_w3c.py to refresh.",
+  "reportOnly": true,
+  "statusValues": [
+    "pass",
+    "known-fail",
+    "skip"
+  ],
+  "issueField": "Reserved for a tracker issue reference; empty until a specific issue is filed for the gap. 'seenIn' records where the case came from in the prototype (w3c_ignore.json mustMatch[] or the filters-* download list).",
+  "policy": {
+    "comment": "Render the case at the suite's 480x360 reference size on a transparent background and compare RGB within the anti-aliased tolerance. Alpha is ignored because the W3C reference rasters encode browser viewport-clipping and stroke anti-aliasing in alpha, which lunasvg reproduces differently.",
+    "width": 480,
+    "height": 360,
+    "background": "00000000",
+    "tolerance": 2,
+    "checkAlpha": false,
+    "maxDelta": 8,
+    "maxDifferingPixelRatio": 0.002
+  },
+  "reference": {
+    "suite": "W3C SVG 1.1 Second Edition Test Suite",
+    "baseUrl": "https://www.w3.org/Graphics/SVG/Test/20110816",
+    "provenance": "tests/data/provenance.md"
+  },
+  "cases": {
+    "coords-coord-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "coords-coord-02-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "coords-trans-02-t": {
+      "status": "pass",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "matches the W3C reference within the anti-aliased RGB tolerance policy"
+    },
+    "coords-trans-03-t": {
+      "status": "pass",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "matches the W3C reference within the anti-aliased RGB tolerance policy"
+    },
+    "coords-trans-04-t": {
+      "status": "pass",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "matches the W3C reference within the anti-aliased RGB tolerance policy"
+    },
+    "coords-trans-05-t": {
+      "status": "pass",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "matches the W3C reference within the anti-aliased RGB tolerance policy"
+    },
+    "coords-trans-06-t": {
+      "status": "pass",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "matches the W3C reference within the anti-aliased RGB tolerance policy"
+    },
+    "coords-trans-08-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "filters-blend-01-b": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "filters",
+      "note": "filter primitive support is incomplete; tracked as a compliance gap"
+    },
+    "filters-color-01-b": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "filters",
+      "note": "filter primitive support is incomplete; tracked as a compliance gap"
+    },
+    "filters-composite-02-b": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "filters",
+      "note": "filter primitive support is incomplete; tracked as a compliance gap"
+    },
+    "filters-comptran-01-b": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "filters",
+      "note": "filter primitive support is incomplete; tracked as a compliance gap"
+    },
+    "filters-gauss-01-b": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "filters",
+      "note": "filter primitive support is incomplete; tracked as a compliance gap"
+    },
+    "filters-offset-01-b": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "filters",
+      "note": "filter primitive support is incomplete; tracked as a compliance gap"
+    },
+    "painting-fill-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "painting-fill-02-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "painting-fill-03-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "painting-fill-04-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "painting-stroke-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "painting-stroke-02-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "paths-data-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "paths-data-02-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "paths-data-04-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "paths-data-05-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-circle-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-circle-02-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-ellipse-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-line-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-polygon-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-polygon-02-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-polyline-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-rect-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-rect-02-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "shapes-rect-03-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "struct-defs-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "struct-frag-01-t": {
+      "status": "skip",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "render fails: renderToBitmap returns a null bitmap for this vector"
+    },
+    "struct-frag-02-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "struct-group-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    },
+    "struct-image-01-t": {
+      "status": "skip",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "references ../images/struct-image-01.{jpg,png}; external image assets are not vendored"
+    },
+    "struct-image-03-t": {
+      "status": "skip",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "references ../images/gam0*.png; external image assets are not vendored"
+    },
+    "struct-use-01-t": {
+      "status": "known-fail",
+      "issue": "",
+      "seenIn": "mustMatch",
+      "note": "differs from the W3C reference raster: the viewport frame stroke is anti-aliased differently and the embedded revision text cannot be rendered without a font-file API; the geometric content matches"
+    }
+  }
+}

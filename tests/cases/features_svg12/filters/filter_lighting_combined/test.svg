@@ -1,0 +1,17 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="lighting" x="0" y="0" width="200" height="200" filterUnits="userSpaceOnUse">
+      <feDiffuseLighting in="SourceGraphic" surfaceScale="2" diffuseConstant="1" result="diffuse">
+        <feDistantLight azimuth="135" elevation="45"/>
+      </feDiffuseLighting>
+      <feSpecularLighting in="SourceGraphic" surfaceScale="2" specularConstant="1" specularExponent="20" result="specular">
+        <fePointLight x="100" y="60" z="200"/>
+      </feSpecularLighting>
+      <feMerge>
+        <feMergeNode in="diffuse"/>
+        <feMergeNode in="specular"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="100" cy="100" r="70" fill="#888" filter="url(#lighting)"/>
+</svg>

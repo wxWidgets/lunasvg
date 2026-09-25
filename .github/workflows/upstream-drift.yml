@@ -1,0 +1,131 @@
+# Upstream drift - nightly + on-demand probe of upstream lunasvg (plan Phase 6).
+#
+# Runs the HARD-GATED sync path (scripts/sync_upstream.py) against the current
+# upstream/master: it fetches upstream, stages a merge onto a throwaway
+# sync/upstream-* branch, normalises with scripts/post_merge.py and runs the full
+# suite. It never pushes (--no-push), so origin/wx is untouched; a green run only
+# *reports* that upstream has advanced and that the merge still passes.
+#
+# Two outcomes matter:
+#   * suite RED after merging upstream  -> the gate refuses to commit; the job
+#     fails so the breakage is visible immediately (sync script exit code 2).
+#   * upstream advanced, suite GREEN    -> drift; the job fails by default so the
+#     scheduled run is a visible "time to sync" signal (exit code 3). Dispatch
+#     with fail_on_drift=false to report without failing.
+#
+# This is a scheduled/advisory workflow, not a PR check. PR CI stays in
+# tests.yml and required status checks remain deliberately unset (2b #11/#13).
+
+name: Upstream drift
+
+on:
+  schedule:
+    # Nightly, shortly after the test workflow, to surface drift early.
+    - cron: '43 5 * * *'
+  workflow_dispatch:
+    inputs:
+      upstream_ref:
+        description: Upstream ref to probe
+        required: false
+        default: upstream/master
+      fail_on_drift:
+        description: Fail the run when upstream has advanced (drift)
+        type: choice
+        options: ['true', 'false']
+        default: 'true'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream-drift
+  cancel-in-progress: false
+
+jobs:
+  drift:
+    name: probe upstream/master
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout wx
+        uses: actions/checkout@v4
+        with:
+          # A divergent merge needs full history; the shallow default cannot.
+          fetch-depth: 0
+          ref: wx
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Add the read-only upstream remote
+        run: git remote add upstream https://github.com/sammycage/lunasvg.git
+
+      # The script owns the gate; this step only captures its exit code and never
+      # trips the job itself, so the report below can explain the outcome.
+      - name: Probe upstream (hard-gated sync, no push)
+        id: probe
+        shell: bash
+        env:
+          UPSTREAM_REF: ${{ github.event.inputs.upstream_ref }}
+        run: |
+          set +e
+          python3 scripts/sync_upstream.py \
+            --upstream-ref "${UPSTREAM_REF:-upstream/master}" \
+            --base wx \
+            --no-push \
+            --fail-on-drift \
+            --build-dir build 2>&1 | tee drift.log
+          code=${PIPESTATUS[0]}
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+
+      - name: Report drift
+        shell: bash
+        env:
+          UPSTREAM_REF: ${{ github.event.inputs.upstream_ref }}
+          FAIL_ON_DRIFT: ${{ github.event.inputs.fail_on_drift }}
+        run: |
+          code="${{ steps.probe.outputs.exit_code }}"
+          {
+            echo "## Upstream drift probe"
+            echo ""
+            echo "| field | value |"
+            echo "|---|---|"
+            echo "| upstream ref | \`${UPSTREAM_REF:-upstream/master}\` |"
+            echo "| sync script exit code | \`$code\` |"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          case "$code" in
+            0)
+              echo "Up to date: upstream is already contained in \`wx\`." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            3)
+              echo "**Drift detected**: upstream advanced and the full suite is green." >> "$GITHUB_STEP_SUMMARY"
+              echo "Run \`python scripts/sync_upstream.py\` and open a PR against \`wx\`." >> "$GITHUB_STEP_SUMMARY"
+              if [ "${FAIL_ON_DRIFT:-true}" = "true" ]; then
+                echo "::error::upstream drift: run scripts/sync_upstream.py to land the merge"
+                exit 1
+              fi
+              ;;
+            2)
+              echo "**Suite is RED after merging upstream.** The gate refused to commit." >> "$GITHUB_STEP_SUMMARY"
+              echo "::error::upstream merge fails the suite; see the drift.log artifact"
+              exit 1
+              ;;
+            *)
+              echo "**Probe failed** with exit code $code (tooling/git error or merge conflict)." >> "$GITHUB_STEP_SUMMARY"
+              echo "::error::upstream drift probe failed with exit code $code"
+              exit 1
+              ;;
+          esac
+
+      - name: Upload drift log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-drift-log
+          path: drift.log
+          if-no-files-found: ignore
+          retention-days: 14

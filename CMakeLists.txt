@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.15)
 
 set(LUNASVG_VERSION_MAJOR 3)
-set(LUNASVG_VERSION_MINOR 3)
+set(LUNASVG_VERSION_MINOR 5)
 set(LUNASVG_VERSION_MICRO 0)
 
 project(lunasvg LANGUAGES CXX VERSION ${LUNASVG_VERSION_MAJOR}.${LUNASVG_VERSION_MINOR}.${LUNASVG_VERSION_MICRO})
 
 option(USE_SYSTEM_PLUTOVG "Use system plutovg library" OFF)
-
 if(USE_SYSTEM_PLUTOVG)
-    find_package(plutovg 1.0.0 QUIET)
+    find_package(plutovg 1.3.0 QUIET)
     if(NOT plutovg_FOUND)
-        message(WARNING "Could not find: plutovg>=1.0.0. Falling back to plutovg submodule.")
+        message(WARNING "Could not find: plutovg>=1.3.0. Falling back to plutovg submodule.")
     endif()
 endif()
 
 if(NOT plutovg_FOUND)
     message(STATUS "Using plutovg submodule.")
+    set(PLUTOVG_BUILD_EXAMPLES OFF CACHE BOOL "Disable plutovg examples" FORCE)
     add_subdirectory(plutovg)
 endif()
 
@@ -24,6 +24,7 @@ set(lunasvg_sources
     source/lunasvg.cpp
     source/graphics.cpp
     source/svgelement.cpp
+    source/svgfilterelement.cpp
     source/svggeometryelement.cpp
     source/svglayoutstate.cpp
     source/svgpaintelement.cpp
@@ -37,6 +38,7 @@ set(lunasvg_headers
     include/lunasvg.h
     source/graphics.h
     source/svgelement.h
+    source/svgfilterelement.h
     source/svggeometryelement.h
     source/svglayoutstate.h
     source/svgpaintelement.h
@@ -50,7 +52,6 @@ add_library(lunasvg ${lunasvg_sources} ${lunasvg_headers})
 add_library(lunasvg::lunasvg ALIAS lunasvg)
 
 target_link_libraries(lunasvg PRIVATE plutovg::plutovg)
-
 set_target_properties(lunasvg PROPERTIES
     SOVERSION ${LUNASVG_VERSION_MAJOR}
     CXX_VISIBILITY_PRESET hidden
@@ -61,6 +62,7 @@ set_target_properties(lunasvg PROPERTIES
 target_include_directories(lunasvg PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/source
+    ${CMAKE_CURRENT_SOURCE_DIR}/plutovg/source
 )
 
 target_include_directories(lunasvg PUBLIC
@@ -73,9 +75,14 @@ if(NOT BUILD_SHARED_LIBS)
     target_compile_definitions(lunasvg PUBLIC LUNASVG_BUILD_STATIC)
 endif()
 
-include(GNUInstallDirs)
+option(LUNASVG_DISABLE_LOAD_SYSTEM_FONTS "Disable automatic loading of fonts from system directories" OFF)
+if(LUNASVG_DISABLE_LOAD_SYSTEM_FONTS)
+    target_compile_definitions(lunasvg PRIVATE LUNASVG_DISABLE_LOAD_SYSTEM_FONTS)
+endif()
 
+include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/lunasvgConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/lunasvgConfig.cmake"
@@ -132,7 +139,7 @@ includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
 libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
 
 Name: LunaSVG
-Description: SVG rendering and manipulation library in C++
+Description: SVG rendering and manipulation library
 Version: @PROJECT_VERSION@
 
 Requires.private: plutovg
@@ -141,7 +148,6 @@ Libs: -L${libdir} -llunasvg
 ]] lunasvg_pc @ONLY)
 
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lunasvg.pc" "${lunasvg_pc}")
-
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/lunasvg.pc"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
 )
@@ -149,4 +155,28 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/lunasvg.pc"
 option(LUNASVG_BUILD_EXAMPLES "Build examples" ON)
 if(LUNASVG_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+# The test suite is opt-in *and* standalone-only. wxlunasvg is consumed by
+# wxWidgets as a git submodule and compiled from an explicit source list
+# (wx: build/cmake/lib/lunasvg.cmake), so wx's build must never see Catch2 or the
+# test sources; `add_subdirectory(tests)` is therefore doubly guarded. The
+# top-level test is CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR rather
+# than PROJECT_IS_TOP_LEVEL, which requires CMake 3.21 while this project
+# requires only 3.15.
+option(LUNASVG_BUILD_TESTS "Build the wxlunasvg test suite" OFF)
+if(LUNASVG_BUILD_TESTS)
+    if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+        # Determinism (plan decisions 2b #9 and Phase 3): the golden-image suite
+        # must never pick up host fonts, so the library is always built without
+        # automatic system-font loading when the tests are enabled.
+        if(NOT LUNASVG_DISABLE_LOAD_SYSTEM_FONTS)
+            message(STATUS "LUNASVG_BUILD_TESTS=ON: forcing LUNASVG_DISABLE_LOAD_SYSTEM_FONTS for deterministic rendering.")
+            target_compile_definitions(lunasvg PRIVATE LUNASVG_DISABLE_LOAD_SYSTEM_FONTS)
+        endif()
+        enable_testing()
+        add_subdirectory(tests)
+    else()
+        message(STATUS "LUNASVG_BUILD_TESTS=ON ignored: the test suite is only built in a top-level (standalone) configuration.")
+    endif()
 endif()

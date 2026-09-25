@@ -1,0 +1,221 @@
+# Tests - the wxlunasvg test suite on every PR to the `wx` integration branch.
+#
+# Phase 5 of the wxlunasvg test-infrastructure plan (`.private/plan.md`).
+#
+# CI IS A SIGNAL, NOT A MERGE GATE. `origin/wx` deliberately has no required
+# status checks yet (plan decisions 2b #11 and 2b #13): the suite always *runs*
+# on a PR, but a red run does not stop a maintainer from merging. Never assume a
+# blocking check exists; requesting one is deferred until the suite is green and
+# robust.
+#
+# GitHub nuance worth knowing: a PR opened from a branch of this same repository
+# runs the workflow from the PR's merge commit, whereas a PR from a different
+# fork runs the workflow as it exists on the *base* branch (`wx`). Edits to this
+# file therefore only take effect for same-repo PRs until they land on `wx`.
+#
+# Baselines are only ever blessed on Linux CI (plan decision 2b #12), so the
+# Linux legs are the canonical signal and the Windows/macOS legs are advisory.
+#
+# `.github/workflows/main.yml` stays build-only (meson + cmake): the test suite
+# is never wired into the meson path (plan section 2 decision #4).
+
+name: Tests
+
+on:
+  # All PRs target the `wx` integration branch (origin/master is a strict
+  # upstream mirror that is never committed to - plan decision 2b #10).
+  pull_request:
+    branches: [wx]
+  schedule:
+    # Nightly run against the default branch so drift shows up without a PR.
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+
+# The suite only reads the checkout; artifacts are uploaded with the runtime
+# token, so no write permission is needed.
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Full suite across OS x compiler x C++ standard. The matrix covers the three
+  # platforms and the compilers that actually exist on each image (gcc/clang on
+  # Linux, clang on macOS, msvc/clang-cl on Windows), each built as C++17 and
+  # C++20.
+  #
+  # Note on the C++ standard axis: the library target pins C++17
+  # (`CXX_STANDARD 17` in the root CMakeLists.txt), so `-DCMAKE_CXX_STANDARD`
+  # raises the *test* translation units and the public header to C++20 while the
+  # library itself stays C++17. That still catches header/standard drift without
+  # changing the shipped target's language level.
+  test:
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / C++${{ matrix.std }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        compiler: [gcc, clang, msvc]
+        std: [17, 20]
+        exclude:
+          # Keep only the compiler/platform pairs that exist on the runner
+          # images, so the cartesian product does not spawn impossible jobs.
+          - { os: macos-latest, compiler: gcc }
+          - { os: macos-latest, compiler: msvc }
+          - { os: windows-latest, compiler: gcc }
+          - { os: ubuntu-latest, compiler: msvc }
+        include:
+          # cc/cxx select the toolchain for the Makefile/Ninja generators; on
+          # Windows the Visual Studio generator selects its toolset instead
+          # (clang -> ClangCL). `cmake_args` carries those per-leg extras.
+          - { os: ubuntu-latest, compiler: gcc, cc: gcc, cxx: g++, cmake_args: '' }
+          - { os: ubuntu-latest, compiler: clang, cc: clang, cxx: clang++, cmake_args: '' }
+          - { os: macos-latest, compiler: clang, cc: clang, cxx: clang++, cmake_args: '' }
+          - { os: windows-latest, compiler: msvc, cc: '', cxx: '', cmake_args: '-A x64' }
+          - { os: windows-latest, compiler: clang, cc: '', cxx: '', cmake_args: '-T ClangCL -A x64' }
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        shell: bash
+        run: |
+          cmake -S . -B build \
+            -DLUNASVG_BUILD_TESTS=ON \
+            -DCMAKE_CXX_STANDARD=${{ matrix.std }} \
+            ${{ matrix.cmake_args }}
+
+      # Unoptimised build on every leg keeps the run close to how the Linux
+      # baselines were blessed and avoids optimisation-driven pixel drift. On a
+      # multi-config generator `--config Debug` selects that configuration; on a
+      # single-config generator it is accepted and ignored, and the default
+      # build type (no optimisation flags) is used instead.
+      - name: Build
+        shell: bash
+        run: cmake --build build --config Debug --parallel
+
+      - name: Test
+        shell: bash
+        run: |
+          set -o pipefail
+          ctest --test-dir build -C Debug --output-on-failure 2>&1 | tee build/test_results.log
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.compiler }}-cxx${{ matrix.std }}
+          path: |
+            build/test_results.log
+            build/Testing/Temporary/**
+            build/corpus-diffs/**
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # ASAN + UBSAN, mirroring wxWidgets' `--with-lunasvg --with-cxx=20` UBSAN job
+  # and the knowledge-base sanitizer gate. Clang provides the best combined
+  # AddressSanitizer + UndefinedBehaviorSanitizer support on Linux.
+  sanitizers:
+    name: ASAN + UBSAN (clang, C++20)
+    runs-on: ubuntu-latest
+    env:
+      CC: clang
+      CXX: clang++
+      ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        shell: bash
+        run: |
+          sanitizer_flags='-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -g'
+          cmake -S . -B build \
+            -DLUNASVG_BUILD_TESTS=ON \
+            -DCMAKE_CXX_STANDARD=20 \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_C_FLAGS="$sanitizer_flags" \
+            -DCMAKE_CXX_FLAGS="$sanitizer_flags" \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+
+      - name: Build
+        shell: bash
+        run: cmake --build build --parallel
+
+      - name: Test under ASAN + UBSAN
+        shell: bash
+        run: |
+          set -o pipefail
+          ctest --test-dir build --output-on-failure 2>&1 | tee build/test_results.log
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-results
+          path: |
+            build/test_results.log
+            build/Testing/Temporary/**
+            build/corpus-diffs/**
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Cheap structural checks that need no compiler and catch the fork's own
+  # regressions: the post_merge idempotency guarantee and the two invariants the
+  # suite's structural tests also assert.
+  structural-lint:
+    name: structural lint (no build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Second-run idempotency (plan Phase 6): on a post_merge-clean tree a
+      # dry run must report no changes. A non-empty result means the checkout is
+      # not normalised, so the namespace/guard guarantees below no longer hold.
+      - name: post_merge.py --dry-run is a no-op (idempotency)
+        shell: bash
+        run: |
+          set -o pipefail
+          output="$(python3 scripts/post_merge.py --dry-run)"
+          printf '%s\n' "$output"
+          if ! grep -q 'No changes needed\.' <<<"$output"; then
+            echo "::error::scripts/post_merge.py --dry-run reported changes; the checkout is not post_merge clean (idempotency broken)"
+            exit 1
+          fi
+
+      # The stronger guarantee (plan Phase 6): once post_merge.py has normalised
+      # a tree, a second run must have nothing left to do. The check above only
+      # proves the *committed* tree is clean; this one applies the rewrite to a
+      # self-contained fixture and re-runs it.
+      - name: post_merge.py is idempotent (apply, then re-run)
+        shell: bash
+        run: python3 scripts/test_post_merge_idempotency.py
+
+      # Mirrors scripts/post_merge.py's scan scope (include/ and source/) and
+      # also sees untracked files, unlike `git grep`.
+      - name: No legacy 'namespace lunasvg' remains
+        shell: bash
+        run: |
+          if grep -rEn '\bnamespace[[:space:]]+lunasvg\b' include source \
+               --include='*.h' --include='*.hpp' --include='*.cpp' \
+               --include='*.cc' --include='*.cxx' --include='*.ipp'; then
+            echo "::error::legacy 'namespace lunasvg' remains; run scripts/post_merge.py"
+            exit 1
+          fi
+          echo "OK: no legacy namespace declaration"
+
+      - name: include/lunasvg.h keeps the C++17 guard
+        shell: bash
+        run: |
+          grep -q '201703L' include/lunasvg.h
+          grep -q '#error' include/lunasvg.h
+          grep -q 'C++17 or later is required' include/lunasvg.h
+          echo "OK: C++17 guard present"

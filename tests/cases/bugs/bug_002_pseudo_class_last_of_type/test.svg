@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
+  <style>
+    rect:last-of-type { fill: green; }
+    rect { fill: blue; }
+  </style>
+  <rect x="10" y="10" width="80" height="80"/>
+  <rect x="110" y="10" width="80" height="80"/>
+</svg>
