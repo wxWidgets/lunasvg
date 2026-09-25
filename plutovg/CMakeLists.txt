@@ -15,6 +15,7 @@ set(plutovg_sources
     source/plutovg-path.c
     source/plutovg-rasterize.c
     source/plutovg-surface.c
+    source/plutovg-filter.c
     source/plutovg-ft-math.c
     source/plutovg-ft-raster.c
     source/plutovg-ft-stroker.c
@@ -24,6 +25,7 @@ set(plutovg_headers
     include/plutovg.h
     source/plutovg-private.h
     source/plutovg-utils.h
+    source/plutovg-filter.h
     source/plutovg-ft-math.h
     source/plutovg-ft-raster.h
     source/plutovg-ft-stroker.h
