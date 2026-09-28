@@ -1,4 +1,5 @@
-# Tests - the wxlunasvg test suite on every PR to the `wx` integration branch.
+# Tests - the wxlunasvg test suite on every PR to the `wx` integration branch
+# and on every branch push.
 #
 # Phase 5 of the wxlunasvg test-infrastructure plan (`.private/plan.md`).
 #
@@ -26,9 +27,11 @@ on:
   # upstream mirror that is never committed to - plan decision 2b #10).
   pull_request:
     branches: [wx]
-  schedule:
-    # Nightly run against the default branch so drift shows up without a PR.
-    - cron: '17 5 * * *'
+  # Any branch push - most importantly a branch pushed on a fork, which is the
+  # only way a fork exercises this file: a cross-fork PR runs the base branch's
+  # copy of it (see the GitHub nuance above). Unfiltered on purpose, since fork
+  # branches have arbitrary names.
+  push:
   workflow_dispatch:
 
 # The suite only reads the checkout; artifacts are uploaded with the runtime
