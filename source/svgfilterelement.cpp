@@ -317,10 +317,10 @@ void SVGFeGaussianBlurElement::layoutElement(const SVGLayoutState& state)
     SVGElement::layoutElement(state);
     for(const auto& attribute : attributes()) {
         if(attribute.id() == PropertyID::StdDeviation) {
-            std::string_view input(attribute.value());
+            std::string str(attribute.value());
             // Parse one or two float values
             char* end;
-            m_stdDeviationX = strtof(std::string(input).c_str(), &end);
+            m_stdDeviationX = strtof(str.c_str(), &end);
             if(m_stdDeviationX < 0.f) m_stdDeviationX = 0.f;
             // Skip whitespace/comma
             const char* p = end;
