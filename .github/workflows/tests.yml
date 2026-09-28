@@ -84,7 +84,7 @@ jobs:
       CXX: ${{ matrix.cxx }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configure
         shell: bash
@@ -134,7 +134,7 @@ jobs:
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configure
         shell: bash
@@ -178,7 +178,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Second-run idempotency (plan Phase 6): on a post_merge-clean tree a
       # dry run must report no changes. A non-empty result means the checkout is
