@@ -33,7 +33,8 @@
 #include <string>
 #include <vector>
 
-#ifndef WXMAKINGDLL
+#if defined(WXBUILDING) && !defined(LUNASVG_BUILD_STATIC)
+    // wxWidgets compatibility: lunasvg is always built as a static library.
     #define LUNASVG_BUILD_STATIC
 #endif
 
@@ -73,15 +74,6 @@
 #define LUNASVG_VERSION_STRING LUNASVG_VERSION_STRINGIZE(LUNASVG_VERSION_MAJOR, LUNASVG_VERSION_MINOR, LUNASVG_VERSION_MICRO)
 
 #ifdef __cplusplus
-
-#if !defined(WXMAKINGDLL) && !defined(LUNASVG_BUILD_STATIC)
-    #define LUNASVG_BUILD_STATIC
-#endif
-
-#ifdef WXBUILDING
-    #define LUNASVG_BUILD
-#endif
-
 extern "C" {
 #endif
 

@@ -119,7 +119,6 @@ class PostMergeIdempotencyTest(unittest.TestCase):
         header = self.header.read_text(encoding="utf-8")
         self.assertIn("201703L", header)
         self.assertIn("C++17 or later is required", header)
-        self.assertIn("WXMAKINGDLL", header)
         self.assertIn("WXBUILDING", header)
         self.assertIn("namespace wxlunasvg", header)
         self.assertNotIn("namespace lunasvg", header)

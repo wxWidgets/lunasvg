@@ -45,6 +45,47 @@ NAMESPACE_REPLACEMENT_PATTERN = re.compile(r'\bnamespace(\s+)lunasvg\b')
 # already-rewritten `wxlunasvg::x` from being matched a second time.
 QUALIFIED_REPLACEMENT_PATTERN = re.compile(r'\blunasvg(\s*::)')
 
+# The merged header must end up with exactly one wx-compat guard per macro. The
+# `!defined(LUNASVG_BUILD_STATIC)` guard stops an externally supplied
+# -DLUNASVG_BUILD_STATIC (CMakeLists.txt and meson.build pass it for static
+# builds) from being redefined, and the comment records why the fork forces the
+# static build inside wxWidgets. WXBUILDING gates the define instead of
+# WXMAKINGDLL because it is set for both static and shared wx builds, whereas
+# WXMAKINGDLL is only set while building wx itself as a DLL - gating on it would
+# silently turn lunasvg into a DLL in a shared wx build.
+WX_DEFINES_BLOCK = (
+    '#if defined(WXBUILDING) && !defined(LUNASVG_BUILD_STATIC)',
+    '    // wxWidgets compatibility: lunasvg is always built as a static library.',
+    '    #define LUNASVG_BUILD_STATIC',
+    '#endif',
+    '',
+    '#ifdef WXBUILDING',
+    '    #define LUNASVG_BUILD',
+    '#endif',
+)
+
+# Matches any guard block that defines one of the two WX macros, in whichever
+# position or spelling a merge left it. Everything this matches is removed before
+# WX_DEFINES_BLOCK is re-inserted, so a header carrying both the wx copy and the
+# post_merge copy collapses to one block instead of warning.
+WX_DEFINES_BLOCK_PATTERN = re.compile(
+    r'(?:^[ \t]*\n)?'
+    r'^[ \t]*#if(?:n?def)?[^\n]*\b(?:WXMAKINGDLL|WXBUILDING)\b[^\n]*\n'
+    r'(?:^[ \t]*(?!#)[^\n]*\n)*?'
+    r'^[ \t]*#[ \t]*define[ \t]+LUNASVG_BUILD(?:_STATIC)?\b[^\n]*\n'
+    r'^[ \t]*#endif[^\n]*\n'
+    r'(?:^[ \t]*\n)?',
+    re.MULTILINE,
+)
+
+# Where the canonical block goes: immediately before the LUNASVG_EXPORT selection
+# (the wx position, so the define still drives export visibility), falling back to
+# the extern "C" line for headers that carry no export block.
+WX_DEFINES_ANCHOR_PATTERNS = (
+    r'^#if\s+defined\s*\(\s*LUNASVG_BUILD_STATIC\s*\)',
+    r'^extern\s+"C"\s*\{',
+)
+
 
 class ChangeTracker:
     """Track and report changes made to files."""
@@ -142,50 +183,24 @@ def add_cpp17_check(content: str) -> Tuple[str, bool]:
     return content, False
 
 
-def check_wx_defines(content: str) -> bool:
-    """Check if WX-related defines are present."""
-    has_wxmakingdll = 'WXMAKINGDLL' in content
-    has_wxbuilding = 'WXBUILDING' in content
-    return has_wxmakingdll and has_wxbuilding
-
-
 def add_wx_defines(content: str) -> Tuple[str, bool]:
-    """Add the missing WX define blocks before the extern "C" block.
+    """Normalise the WX define guards to a single canonical copy.
 
-    Each block is decided separately so a header that already carries one of
-    them is never given a second, duplicated copy of the same guard.
+    A merge can leave more than one guard that defines LUNASVG_BUILD_STATIC - the
+    wx header's own block plus the one an earlier post_merge.py run wrote - and the
+    duplicate makes the compiler warn ``macro redefined`` in every lunasvg
+    translation unit. Every existing block is dropped and the canonical one is
+    re-inserted once, immediately before the LUNASVG_EXPORT selection.
     """
-    if check_wx_defines(content):
-        return content, False
+    stripped = WX_DEFINES_BLOCK_PATTERN.sub('', content)
+    lines = stripped.split('\n')
 
-    extern_c_pattern = r'^extern\s+"C"\s*{'
-    lines = content.split('\n')
-
-    wx_defines = []
-    if 'WXMAKINGDLL' not in content:
-        wx_defines.extend([
-            '',
-            '#ifndef WXMAKINGDLL',
-            '    #define LUNASVG_BUILD_STATIC',
-            '#endif',
-        ])
-    if 'WXBUILDING' not in content:
-        wx_defines.extend([
-            '',
-            '#ifdef WXBUILDING',
-            '    #define LUNASVG_BUILD',
-            '#endif',
-        ])
-
-    if not wx_defines:
-        return content, False
-
-    wx_defines.append('')
-
-    for i, line in enumerate(lines):
-        if re.match(extern_c_pattern, line):
-            lines[i:i] = wx_defines
-            return '\n'.join(lines), True
+    for anchor_pattern in WX_DEFINES_ANCHOR_PATTERNS:
+        for index, line in enumerate(lines):
+            if re.match(anchor_pattern, line):
+                lines[index:index] = ['', *WX_DEFINES_BLOCK, '']
+                normalized = '\n'.join(lines)
+                return normalized, normalized != content
 
     return content, False
 
@@ -249,7 +264,7 @@ def process_lunasvg_header(file_path: Path, dry_run: bool, tracker: ChangeTracke
     # Check 2: WX defines
     content, changed = add_wx_defines(content)
     if changed:
-        changes_made.append("Added WX defines")
+        changes_made.append("Normalized WX defines")
 
     # Check 3: Namespace
     content, changed = fix_namespace(content)
