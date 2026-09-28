@@ -1,0 +1,26 @@
+# Defaults for nektos/act (https://github.com/nektos/act), consumed by the
+# "act: tests.yml" task in .vscode/tasks.json to run .github/workflows/tests.yml
+# locally against Docker Desktop.
+#
+# Map the GitHub-hosted Ubuntu runner to the image built from
+# .github/act/Dockerfile (act's Ubuntu runner image + CMake + Clang, the two
+# tools the workflow needs that the stock image lacks). The "act: tests.yml"
+# task builds that image before invoking act.
+#
+# macOS and Windows runners are intentionally left unmapped: Docker Desktop runs
+# Linux containers only, so those matrix legs cannot run locally and are skipped
+# with `--matrix os:ubuntu-latest` (see the task in .vscode/tasks.json).
+-P ubuntu-latest=wxlunasvg-act-tests:latest
+
+# The runner image is built locally (see above) and is not in any registry, and
+# this host has no docker-credential-desktop helper on PATH, so act must not try
+# to pull. The image (and its catthehacker/ubuntu base) already exist locally
+# after the "act: tests.yml" task runs its build step.
+--pull=false
+
+# The workflow uploads failure artifacts (build/test_results.log,
+# build/Testing/Temporary, build/corpus-diffs) when a job fails. act can only
+# serve that upload when its artifact server is enabled with a storage path;
+# without it the upload-artifact step errors. Keep the artifacts under
+# .act/artifacts (git-ignored) so a red run can be inspected locally.
+--artifact-server-path .act/artifacts
