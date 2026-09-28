@@ -33,6 +33,14 @@
 #include <string>
 #include <vector>
 
+#ifndef WXMAKINGDLL
+    #define LUNASVG_BUILD_STATIC
+#endif
+
+#ifdef WXBUILDING
+    #define LUNASVG_BUILD
+#endif
+
 #if defined(LUNASVG_BUILD_STATIC)
 #define LUNASVG_EXPORT
 #define LUNASVG_IMPORT
