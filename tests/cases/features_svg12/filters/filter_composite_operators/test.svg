@@ -1,0 +1,41 @@
+<svg width="300" height="80" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="compOver" filterUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+      <feImage result="red" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='16' cy='20' r='14' fill='red'/></svg>"/>
+      <feImage result="blue" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='24' cy='20' r='14' fill='blue'/></svg>"/>
+      <feComposite in="red" in2="blue" operator="over"/>
+    </filter>
+    <filter id="compIn" filterUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+      <feImage result="red" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='16' cy='20' r='14' fill='red'/></svg>"/>
+      <feImage result="blue" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='24' cy='20' r='14' fill='blue'/></svg>"/>
+      <feComposite in="red" in2="blue" operator="in"/>
+    </filter>
+    <filter id="compOut" filterUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+      <feImage result="red" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='16' cy='20' r='14' fill='red'/></svg>"/>
+      <feImage result="blue" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='24' cy='20' r='14' fill='blue'/></svg>"/>
+      <feComposite in="red" in2="blue" operator="out"/>
+    </filter>
+    <filter id="compAtop" filterUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+      <feImage result="red" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='16' cy='20' r='14' fill='red'/></svg>"/>
+      <feImage result="blue" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='24' cy='20' r='14' fill='blue'/></svg>"/>
+      <feComposite in="red" in2="blue" operator="atop"/>
+    </filter>
+    <filter id="compXor" filterUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+      <feImage result="red" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='16' cy='20' r='14' fill='red'/></svg>"/>
+      <feImage result="blue" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='24' cy='20' r='14' fill='blue'/></svg>"/>
+      <feComposite in="red" in2="blue" operator="xor"/>
+    </filter>
+    <filter id="compArithmetic" filterUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+      <feImage result="red" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='16' cy='20' r='14' fill='red'/></svg>"/>
+      <feImage result="blue" x="0" y="0" width="40" height="40" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='24' cy='20' r='14' fill='blue'/></svg>"/>
+      <feComposite in="red" in2="blue" operator="arithmetic" k1="0.5" k2="0.5" k3="0.5" k4="0"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="20" width="40" height="40" fill="white" filter="url(#compOver)"/>
+  <rect x="50" y="20" width="40" height="40" fill="white" filter="url(#compIn)"/>
+  <rect x="100" y="20" width="40" height="40" fill="white" filter="url(#compOut)"/>
+  <rect x="150" y="20" width="40" height="40" fill="white" filter="url(#compAtop)"/>
+  <rect x="200" y="20" width="40" height="40" fill="white" filter="url(#compXor)"/>
+  <rect x="250" y="20" width="40" height="40" fill="white" filter="url(#compArithmetic)"/>
+</svg>

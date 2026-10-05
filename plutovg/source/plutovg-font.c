@@ -4,10 +4,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#ifdef _MSC_VER
-#pragma warning(disable:4100)  /* unreferenced formal parameter */
-#endif
-
 #define STBTT_STATIC
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "plutovg-stb-truetype.h"
@@ -129,7 +125,7 @@ typedef CRITICAL_SECTION plutovg_mutex_t;
 
 typedef mtx_t plutovg_mutex_t;
 
-#define plutovg_mutex_init(mutex) mtx_init(mutex, mtx_recursive)
+#define plutovg_mutex_init(mutex) mtx_init(mutex, mtx_plain | mtx_recursive)
 #define plutovg_mutex_lock(mutex) mtx_lock(mutex)
 #define plutovg_mutex_unlock(mutex) mtx_unlock(mutex)
 #define plutovg_mutex_destroy(mutex) mtx_destroy(mutex)
@@ -700,7 +696,12 @@ plutovg_font_face_t* plutovg_font_face_cache_get(plutovg_font_face_cache_t* cach
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
+
+#ifdef __linux__
+#include <linux/limits.h>
+#else
 #include <limits.h>
+#endif
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -838,7 +839,7 @@ int plutovg_font_face_cache_load_file(plutovg_font_face_cache_t* cache, const ch
             while(family_length) {
                 stbtt_uint16 ch = family_name[0] * 256 + family_name[1];
                 if(ch < 0x80) {
-                    entry->family[family_index++] = (stbtt_uint8) ch;
+                    entry->family[family_index++] = ch;
                 } else if(ch < 0x800) {
                     entry->family[family_index++] = (0xc0 + (ch >> 6));
                     entry->family[family_index++] = (0x80 + (ch & 0x3f));
@@ -904,7 +905,7 @@ int plutovg_font_face_cache_load_file(plutovg_font_face_cache_t* cache, const ch
             while(family_length) {
                 stbtt_uint16 ch = MAC_ROMAN_TABLE[family_name[0]];
                 if(ch < 0x80) {
-                    entry->family[family_index++] = (stbtt_uint8) ch;
+                    entry->family[family_index++] = ch;
                 } else if(ch < 0x800) {
                     entry->family[family_index++] = (0xc0 + (ch >> 6));
                     entry->family[family_index++] = (0x80 + (ch & 0x3f));

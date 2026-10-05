@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- SEC-004: ReDoS in CSS Selector Test -->
+  <!-- Complex pathological selector that may cause catastrophic backtracking -->
+  <style>
+    /* Pathological selector with multiple attribute wildcards and deep nesting */
+    g[class*='a'][class*='b'][class*='c'][class*='d'][class*='e'] > g > g > g > g > g rect,
+    g:first-child:last-child:only-child > g:first-child:last-child > g:first-child > g:last-child > rect,
+    [id^='x'][id$='y'][id*='z'][class~='w'][data-test*='v'] rect {
+      fill: red;
+      stroke: blue;
+      stroke-width: 2;
+    }
+  </style>
+  
+  <!-- Create 100 nested groups with matching attributes to maximize selector matching work -->
+  <g class="abcde" id="xyz" data-test="v">
+    <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+      <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+        <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+          <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+            <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+              <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+                <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+                  <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+                    <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+                      <g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde"><g class="abcde">
+                        <rect x="10" y="10" width="180" height="180"/>
+                      </g></g></g></g></g>
+                    </g></g></g></g></g>
+                  </g></g></g></g></g>
+                </g></g></g></g></g>
+              </g></g></g></g></g>
+            </g></g></g></g></g>
+          </g></g></g></g></g>
+        </g></g></g></g></g>
+      </g></g></g></g></g>
+    </g></g></g></g></g>
+  </g>
+</svg>

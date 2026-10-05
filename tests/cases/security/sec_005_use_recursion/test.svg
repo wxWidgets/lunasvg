@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- SEC-005: Unbounded Use Recursion Test -->
+  <!-- Create 50-level deep <use> chain (non-circular) -->
+  <defs>
+    <rect id="level50" x="10" y="10" width="180" height="180" fill="red"/>
+    <use id="level49" href="#level50"/>
+    <use id="level48" href="#level49"/>
+    <use id="level47" href="#level48"/>
+    <use id="level46" href="#level47"/>
+    <use id="level45" href="#level46"/>
+    <use id="level44" href="#level45"/>
+    <use id="level43" href="#level44"/>
+    <use id="level42" href="#level43"/>
+    <use id="level41" href="#level42"/>
+    <use id="level40" href="#level41"/>
+    <use id="level39" href="#level40"/>
+    <use id="level38" href="#level39"/>
+    <use id="level37" href="#level38"/>
+    <use id="level36" href="#level37"/>
+    <use id="level35" href="#level36"/>
+    <use id="level34" href="#level35"/>
+    <use id="level33" href="#level34"/>
+    <use id="level32" href="#level33"/>
+    <use id="level31" href="#level32"/>
+    <use id="level30" href="#level31"/>
+    <use id="level29" href="#level30"/>
+    <use id="level28" href="#level29"/>
+    <use id="level27" href="#level28"/>
+    <use id="level26" href="#level27"/>
+    <use id="level25" href="#level26"/>
+    <use id="level24" href="#level25"/>
+    <use id="level23" href="#level24"/>
+    <use id="level22" href="#level23"/>
+    <use id="level21" href="#level22"/>
+    <use id="level20" href="#level21"/>
+    <use id="level19" href="#level20"/>
+    <use id="level18" href="#level19"/>
+    <use id="level17" href="#level18"/>
+    <use id="level16" href="#level17"/>
+    <use id="level15" href="#level16"/>
+    <use id="level14" href="#level15"/>
+    <use id="level13" href="#level14"/>
+    <use id="level12" href="#level13"/>
+    <use id="level11" href="#level12"/>
+    <use id="level10" href="#level11"/>
+    <use id="level9" href="#level10"/>
+    <use id="level8" href="#level9"/>
+    <use id="level7" href="#level8"/>
+    <use id="level6" href="#level7"/>
+    <use id="level5" href="#level6"/>
+    <use id="level4" href="#level5"/>
+    <use id="level3" href="#level4"/>
+    <use id="level2" href="#level3"/>
+    <use id="level1" href="#level2"/>
+  </defs>
+  
+  <!-- Use level 1, which chains through all 50 levels -->
+  <use href="#level1"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <filter id="flood1">
+      <feFlood flood-color="red" flood-opacity="1"/>
+    </filter>
+  </defs>
+  <!-- Blue rect with red flood filter should appear entirely red -->
+  <rect x="25" y="25" width="150" height="150" fill="blue" filter="url(#flood1)"/>
+</svg>

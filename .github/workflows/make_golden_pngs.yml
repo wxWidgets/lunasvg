@@ -1,0 +1,169 @@
+# Make golden PNGs - manual, on-demand regeneration of the golden-image
+# baselines (tests/cases/**/baseline.png) via tests/tools/bless.py.
+#
+# WHY A WORKFLOW: bless.py only produces canonical baselines on Linux (plan
+# decision 2b #12 in .private/plan.md), so a Windows/macOS checkout cannot bless a
+# case. This gives the maintainer a Linux runner on demand - without a local Linux
+# box - which is what makes a brand-new case's baseline.png attainable.
+#
+# MANUAL ONLY (workflow_dispatch): baselines are regenerated on purpose, never on
+# a PR/push/schedule, so an unrelated push can never silently rewrite golden
+# images. A blessing must always surface as a reviewable diff (plan Phase 3), so
+# this workflow does NOT commit or push: it uploads the added/changed baselines as
+# an artifact and prints bless.py's own "reviewable diff" plus its full log into
+# the run summary. Download the artifact, unpack it at the repo root, review the
+# diff, then commit.
+#
+# The build deliberately mirrors .github/workflows/tests.yml: an unoptimised
+# single-config build (no CMAKE_BUILD_TYPE) on ubuntu-latest, which is how the
+# Linux CI baselines are produced and what avoids optimisation-driven pixel drift.
+# Only the two helpers bless.py drives (svgrender, pngcompare) are built; the
+# Catch2-based wxlunasvg_tests binary is not needed to (re)generate baselines.
+#
+# Run it locally with nektos/act + Docker Desktop (the .actrc defaults map
+# ubuntu-latest and enable the artifact server under .act/artifacts):
+#   act workflow_dispatch -W .github/workflows/make_golden_pngs.yml
+# or use the "act: make_golden_pngs.yml" task in .vscode/tasks.json.
+
+name: Make golden PNGs
+
+on:
+  # Manual only - intentionally no pull_request, push or schedule trigger.
+  workflow_dispatch:
+    inputs:
+      case:
+        description: 'Case key(s) to bless, comma/space separated (blank = every case)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Report what would change without writing any baseline'
+        type: boolean
+        default: false
+
+# The workflow only reads the checkout; the artifact upload uses the runtime
+# token, so no write permission is needed (nothing is committed or pushed).
+permissions:
+  contents: read
+
+concurrency:
+  group: make-golden-pngs-${{ github.ref }}
+  # Never cancel a blessing in progress; a manual run finishes what it started.
+  cancel-in-progress: false
+
+jobs:
+  bless:
+    name: bless baselines (ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Configure (LUNASVG_BUILD_TESTS=ON)
+        shell: bash
+        run: cmake -S . -B build -DLUNASVG_BUILD_TESTS=ON
+
+      - name: Build svgrender + pngcompare
+        shell: bash
+        run: cmake --build build --target svgrender pngcompare --parallel
+
+      # bless.py refuses to run off Linux unless --allow-foreign-platform is
+      # given; on this ubuntu-latest runner that guard is satisfied, so the result
+      # is a canonical baseline. The exit code is captured rather than failing the
+      # step so the collection/upload/summary steps below still run and surface
+      # whatever the run did produce.
+      - name: Bless golden images
+        id: bless
+        shell: bash
+        env:
+          BLESS_CASES: ${{ inputs.case }}
+          BLESS_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          args=()
+          if [ -n "${BLESS_CASES:-}" ]; then
+            for key in $(printf '%s' "$BLESS_CASES" | tr ',' ' '); do
+              args+=(--case "$key")
+            done
+          fi
+          if [ "${BLESS_DRY_RUN:-false}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          set +e
+          python3 tests/tools/bless.py "${args[@]}" 2>&1 | tee bless.log
+          code=${PIPESTATUS[0]}
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+
+      # bless.py writes only <case>/baseline.png, and only when a case is new or
+      # its pixels changed, so the changed set is exactly the
+      # modified/untracked baseline.png files. Copy them out under golden/
+      # preserving repo-relative paths so the artifact unpacks straight over the
+      # checkout.
+      - name: Collect changed baselines
+        id: collect
+        if: always()
+        shell: bash
+        run: |
+          rm -rf golden
+          mkdir -p golden
+          mapfile -t changed < <(git ls-files -mo --exclude-standard -- tests/cases | grep -E 'baseline\.png$' || true)
+          for path in "${changed[@]}"; do
+            mkdir -p "golden/$(dirname "$path")"
+            cp "$path" "golden/$path"
+          done
+          echo "count=${#changed[@]}" >> "$GITHUB_OUTPUT"
+          if [ "${#changed[@]}" -eq 0 ]; then
+            echo "No baseline.png was added or changed."
+          else
+            printf 'Changed/added baselines:\n'
+            printf '  %s\n' "${changed[@]}"
+          fi
+
+      - name: Run summary
+        if: always()
+        shell: bash
+        env:
+          BLESS_EXIT: ${{ steps.bless.outputs.exit_code }}
+          CHANGED_COUNT: ${{ steps.collect.outputs.count }}
+        run: |
+          {
+            echo "## Make golden PNGs"
+            echo ""
+            echo "| field | value |"
+            echo "|---|---|"
+            echo "| ref | \`${GITHUB_REF}\` |"
+            echo "| commit | \`${GITHUB_SHA}\` |"
+            echo "| bless.py exit code | \`${BLESS_EXIT:-n/a}\` |"
+            echo "| baseline.png added/changed | ${CHANGED_COUNT:-0} |"
+            echo ""
+            echo "Download the \`golden-pngs\` artifact, unpack it at the repo root, review the diff, then commit."
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ -f bless.log ]; then
+            {
+              echo ""
+              echo "<details><summary>bless.py output</summary>"
+              echo ""
+              echo '```'
+              tail -n 150 bless.log
+              echo '```'
+              echo "</details>"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload golden PNGs
+        if: always() && steps.collect.outputs.count != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-pngs
+          path: golden/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # bless.py returns non-zero when any case errored; surface that as a red run
+      # only after the baselines it did produce have been uploaded above.
+      - name: Fail on bless errors
+        if: always() && steps.bless.outputs.exit_code != '' && steps.bless.outputs.exit_code != '0'
+        shell: bash
+        run: |
+          echo "::error::bless.py exited with ${{ steps.bless.outputs.exit_code }}; see the run summary and bless.log"
+          exit 1

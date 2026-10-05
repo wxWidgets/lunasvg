@@ -1,0 +1,13 @@
+<svg width="300" height="100" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="erode" x="0" y="0" width="100%" height="100%">
+      <feMorphology operator="erode" radius="2"/>
+    </filter>
+    <filter id="dilate" x="0" y="0" width="100%" height="100%">
+      <feMorphology operator="dilate" radius="2"/>
+    </filter>
+  </defs>
+  <text x="20" y="60" font-family="Arial, sans-serif" font-size="48" fill="black">SVG</text>
+  <text x="110" y="60" font-family="Arial, sans-serif" font-size="48" fill="black" filter="url(#erode)">SVG</text>
+  <text x="200" y="60" font-family="Arial, sans-serif" font-size="48" fill="black" filter="url(#dilate)">SVG</text>
+</svg>

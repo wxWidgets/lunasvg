@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200">
+  <!-- Test feBlend modes -->
+  <defs>
+    <filter id="blendMultiply">
+      <feFlood flood-color="#ff0000" flood-opacity="0.8" result="red"/>
+      <feBlend in="SourceGraphic" in2="red" mode="multiply"/>
+    </filter>
+    <filter id="blendScreen">
+      <feFlood flood-color="#0000ff" flood-opacity="0.8" result="blue"/>
+      <feBlend in="SourceGraphic" in2="blue" mode="screen"/>
+    </filter>
+    <filter id="blendDarken">
+      <feFlood flood-color="#888888" result="gray"/>
+      <feBlend in="SourceGraphic" in2="gray" mode="darken"/>
+    </filter>
+    <filter id="blendLighten">
+      <feFlood flood-color="#888888" result="gray"/>
+      <feBlend in="SourceGraphic" in2="gray" mode="lighten"/>
+    </filter>
+  </defs>
+  <rect x="10" y="50" width="80" height="100" fill="#44cc44" filter="url(#blendMultiply)"/>
+  <rect x="110" y="50" width="80" height="100" fill="#44cc44" filter="url(#blendScreen)"/>
+  <rect x="210" y="50" width="80" height="100" fill="#44cc44" filter="url(#blendDarken)"/>
+  <rect x="310" y="50" width="80" height="100" fill="#44cc44" filter="url(#blendLighten)"/>
+  <text x="30" y="30" font-size="12">multiply</text>
+  <text x="130" y="30" font-size="12">screen</text>
+  <text x="230" y="30" font-size="12">darken</text>
+  <text x="330" y="30" font-size="12">lighten</text>
+</svg>

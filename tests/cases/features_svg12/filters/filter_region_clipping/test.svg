@@ -1,0 +1,13 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="centerClip" x="25%" y="25%" width="50%" height="50%" filterUnits="objectBoundingBox">
+      <feFlood flood-color="red" flood-opacity="0.5" result="flood"/>
+      <feComposite in="flood" in2="SourceAlpha" operator="in" result="redMask"/>
+      <feMerge>
+        <feMergeNode in="redMask"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="100" cy="100" r="70" fill="#ccc" filter="url(#centerClip)"/>
+</svg>

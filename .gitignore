@@ -1,2 +1,4 @@
 /build
+/.act/
 *.user
+scripts/__pycache__

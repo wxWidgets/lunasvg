@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- SEC-002: Deep Nesting Stack Overflow Test -->
+  <!-- 150 nested <g> elements to trigger stack overflow -->
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+  <g><g><g><g><g><g><g><g><g><g>
+    <rect x="10" y="10" width="180" height="180" fill="red"/>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+  </g></g></g></g></g></g></g></g></g></g>
+</svg>

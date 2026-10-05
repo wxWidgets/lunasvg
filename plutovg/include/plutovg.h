@@ -25,18 +25,6 @@
 
 #include <stdbool.h>
 
-/*
-    For wxWidgets, the plutovg code is not publicly exposed, so it is only used
-    by the lunasvg library. As such, there is no need to build a shared library
-    version of it even if lunasvg is being built as a shared library.
-
-    The following two #defines are specifically for wxWidgets to ensure that
-    the plutovg library is built as a static library.
-*/
-
-#define PLUTOVG_BUILD
-#define PLUTOVG_BUILD_STATIC
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -63,7 +51,7 @@ extern "C" {
 
 #define PLUTOVG_VERSION_MAJOR 1
 #define PLUTOVG_VERSION_MINOR 3
-#define PLUTOVG_VERSION_MICRO 1
+#define PLUTOVG_VERSION_MICRO 2
 
 #define PLUTOVG_VERSION_ENCODE(major, minor, micro) (((major) * 10000) + ((minor) * 100) + ((micro) * 1))
 #define PLUTOVG_VERSION PLUTOVG_VERSION_ENCODE(PLUTOVG_VERSION_MAJOR, PLUTOVG_VERSION_MINOR, PLUTOVG_VERSION_MICRO)
@@ -289,11 +277,11 @@ PLUTOVG_API void plutovg_matrix_map_rect(const plutovg_matrix_t* matrix, const p
 
 /**
  * @brief Parses an SVG transform string into a matrix.
- * 
+ *
  * @param matrix A pointer to a `plutovg_matrix_t` object to store the result.
  * @param data Input SVG transform string.
  * @param length Length of the string, or `-1` if null-terminated.
- * 
+ *
  * @return `true` on success, `false` on failure.
  */
 PLUTOVG_API bool plutovg_matrix_parse(plutovg_matrix_t* matrix, const char* data, int length);
@@ -993,9 +981,9 @@ PLUTOVG_API int plutovg_font_face_cache_load_file(plutovg_font_face_cache_t* cac
 
 /**
  * @brief Load all font faces from files in a directory recursively and add them to the cache.
- * 
+ *
  * This scans the specified directory recursively and loads all supported font files.
- * 
+ *
  * @param cache A pointer to a `plutovg_font_face_cache_t` object.
  * @param dirname Path to the directory containing font files.
  * @return The number of faces successfully loaded, or `-1` if font face cache loading is disabled.
@@ -1006,7 +994,7 @@ PLUTOVG_API int plutovg_font_face_cache_load_dir(plutovg_font_face_cache_t* cach
  * @brief Load all available system font faces and add them to the cache.
  *
  * This scans standard system font directories recursively and loads all supported font files.
- * 
+ *
  * @param cache A pointer to a `plutovg_font_face_cache_t` object.
  * @return The number of faces successfully loaded, or `-1` if font face cache loading is disabled.
  */
@@ -1035,7 +1023,7 @@ typedef struct plutovg_color {
 
 /**
  * @brief Initializes a color using RGB components in the 0-1 range.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object.
  * @param r Red component (0 to 1).
  * @param g Green component (0 to 1).
@@ -1045,7 +1033,7 @@ PLUTOVG_API void plutovg_color_init_rgb(plutovg_color_t* color, float r, float g
 
 /**
  * @brief Initializes a color using RGBA components in the 0-1 range.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object.
  * @param r Red component (0 to 1).
  * @param g Green component (0 to 1).
@@ -1056,7 +1044,7 @@ PLUTOVG_API void plutovg_color_init_rgba(plutovg_color_t* color, float r, float 
 
 /**
  * @brief Initializes a color using RGB components in the 0-255 range.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object.
  * @param r Red component (0 to 255).
  * @param g Green component (0 to 255).
@@ -1066,7 +1054,7 @@ PLUTOVG_API void plutovg_color_init_rgb8(plutovg_color_t* color, int r, int g, i
 
 /**
  * @brief Initializes a color using RGBA components in the 0-255 range.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object.
  * @param r Red component (0 to 255).
  * @param g Green component (0 to 255).
@@ -1077,7 +1065,7 @@ PLUTOVG_API void plutovg_color_init_rgba8(plutovg_color_t* color, int r, int g, 
 
 /**
  * @brief Initializes a color from a 32-bit unsigned RGBA value.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object.
  * @param value 32-bit unsigned RGBA value.
  */
@@ -1085,7 +1073,7 @@ PLUTOVG_API void plutovg_color_init_rgba32(plutovg_color_t* color, unsigned int 
 
 /**
  * @brief Initializes a color from a 32-bit unsigned ARGB value.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object.
  * @param value 32-bit unsigned ARGB value.
  */
@@ -1114,29 +1102,29 @@ PLUTOVG_API void plutovg_color_init_hsla(plutovg_color_t* color, float h, float 
 
 /**
  * @brief Converts a color to a 32-bit unsigned RGBA value.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object.
- * 
+ *
  * @return 32-bit unsigned RGBA value.
  */
 PLUTOVG_API unsigned int plutovg_color_to_rgba32(const plutovg_color_t* color);
 
 /**
  * @brief Converts a color to a 32-bit unsigned ARGB value.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object.
- * 
+ *
  * @return 32-bit unsigned ARGB value.
  */
 PLUTOVG_API unsigned int plutovg_color_to_argb32(const plutovg_color_t* color);
 
 /**
  * @brief Parses a color from a string using CSS color syntax.
- * 
+ *
  * @param color A pointer to a `plutovg_color_t` object to store the parsed color.
  * @param data A pointer to the input string containing the color data.
  * @param length The length of the input string in bytes, or `-1` if the string is null-terminated.
- * 
+ *
  * @return The number of characters consumed on success (including leading/trailing spaces), or 0 on failure.
  */
 PLUTOVG_API int plutovg_color_parse(plutovg_color_t* color, const char* data, int length);
@@ -2292,7 +2280,7 @@ PLUTOVG_API bool plutovg_canvas_clip_contains(plutovg_canvas_t* canvas, float x,
  * Computes an axis-aligned bounding box in user space that encloses the area
  * which would be affected by a fill operation (`plutovg_canvas_fill()`) given the current path,
  * fill rule, and transformation state.
- * 
+ *
  * @note Clipping and surface dimensions are not considered in this calculation.
  *
  * @param canvas A pointer to a `plutovg_canvas_t` object.

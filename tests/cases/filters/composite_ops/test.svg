@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="200">
+  <!-- Test feComposite operators -->
+  <defs>
+    <filter id="compOver">
+      <feFlood flood-color="#ff0000" flood-opacity="0.7" result="red"/>
+      <feComposite in="SourceGraphic" in2="red" operator="over"/>
+    </filter>
+    <filter id="compIn">
+      <feFlood flood-color="#ff0000" flood-opacity="0.7" result="red"/>
+      <feComposite in="SourceGraphic" in2="red" operator="in"/>
+    </filter>
+    <filter id="compOut">
+      <feFlood flood-color="#ff0000" flood-opacity="0.7" result="red"/>
+      <feComposite in="SourceGraphic" in2="red" operator="out"/>
+    </filter>
+    <filter id="compAtop">
+      <feFlood flood-color="#ff0000" flood-opacity="0.7" result="red"/>
+      <feComposite in="SourceGraphic" in2="red" operator="atop"/>
+    </filter>
+    <filter id="compXor">
+      <feFlood flood-color="#ff0000" flood-opacity="0.7" result="red"/>
+      <feComposite in="SourceGraphic" in2="red" operator="xor"/>
+    </filter>
+    <filter id="compArith">
+      <feFlood flood-color="#ff0000" flood-opacity="1" result="red"/>
+      <feComposite in="SourceGraphic" in2="red" operator="arithmetic" k1="0" k2="0.5" k3="0.5" k4="0"/>
+    </filter>
+  </defs>
+  <circle cx="45" cy="100" r="35" fill="#4488cc" filter="url(#compOver)"/>
+  <circle cx="125" cy="100" r="35" fill="#4488cc" filter="url(#compIn)"/>
+  <circle cx="205" cy="100" r="35" fill="#4488cc" filter="url(#compOut)"/>
+  <circle cx="285" cy="100" r="35" fill="#4488cc" filter="url(#compAtop)"/>
+  <circle cx="365" cy="100" r="35" fill="#4488cc" filter="url(#compXor)"/>
+  <circle cx="445" cy="100" r="35" fill="#4488cc" filter="url(#compArith)"/>
+  <text x="25" y="25" font-size="11">over</text>
+  <text x="115" y="25" font-size="11">in</text>
+  <text x="190" y="25" font-size="11">out</text>
+  <text x="270" y="25" font-size="11">atop</text>
+  <text x="350" y="25" font-size="11">xor</text>
+  <text x="425" y="25" font-size="11">arith</text>
+</svg>

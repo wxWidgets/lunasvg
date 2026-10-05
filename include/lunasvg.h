@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025 Samuel Ugochukwu <sammycageagle@gmail.com>
+ * Copyright (c) 2020-2026 Samuel Ugochukwu <sammycageagle@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 #ifndef LUNASVG_H
 #define LUNASVG_H
 
+
 #if !(__cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L))
     #error "C++17 or later is required for LunaSVG support."
 #endif
@@ -32,7 +33,8 @@
 #include <string>
 #include <vector>
 
-#ifndef WXMAKINGDLL
+#if defined(WXBUILDING) && !defined(LUNASVG_BUILD_STATIC)
+    // wxWidgets compatibility: lunasvg is always built as a static library.
     #define LUNASVG_BUILD_STATIC
 #endif
 

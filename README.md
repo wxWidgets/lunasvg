@@ -1,6 +1,7 @@
 [![Actions](https://github.com/sammycage/lunasvg/actions/workflows/main.yml/badge.svg)](https://github.com/sammycage/lunasvg/actions)
 [![License](https://img.shields.io/github/license/sammycage/lunasvg)](https://github.com/sammycage/lunasvg/blob/master/LICENSE)
 [![Releases](https://img.shields.io/github/v/release/sammycage/lunasvg)](https://github.com/sammycage/lunasvg/releases)
+[![Tests](https://github.com/wxWidgets/lunasvg/actions/workflows/tests.yml/badge.svg)](https://github.com/wxWidgets/lunasvg/actions/workflows/tests.yml)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.me/sammycage)
 
 > Interested in HTML rendering? Explore a related library, [PlutoBook](https://github.com/plutoprint/plutobook), built for paged HTML rendering.
