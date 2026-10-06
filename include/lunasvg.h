@@ -33,12 +33,12 @@
 #include <string>
 #include <vector>
 
-#if defined(WXBUILDING) && !defined(LUNASVG_BUILD_STATIC)
+#if !defined(LUNASVG_BUILD_STATIC) && !defined(LUNASVG_BUILD)
     // wxWidgets compatibility: lunasvg is always built as a static library.
+    // wxWidgets compiles it via wx_add_builtin_library, which defines neither
+    // LUNASVG_BUILD nor LUNASVG_BUILD_STATIC (and does not set WXBUILDING), so
+    // default to a static build whenever neither macro is already set.
     #define LUNASVG_BUILD_STATIC
-#endif
-
-#ifdef WXBUILDING
     #define LUNASVG_BUILD
 #endif
 

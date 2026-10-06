@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the in-repo golden-image corpus (plan Phase 4).
+"""Run the in-repo golden-image corpus.
 
 For each case in ``tests/data/manifest.json`` this renders ``<case>/test.svg``
 through the ``svgrender`` helper and compares the result with ``<case>/baseline.png``
@@ -11,7 +11,7 @@ through the tolerance-based ``pngcompare`` helper, then interprets the manifest'
                    so a stale tracker entry cannot go unnoticed;
 * ``skip``      - not rendered at all, reported for completeness.
 
-This is the Phase 4 "ctest orchestration" of the manifest: ``tests/CMakeLists.txt``
+This is the "ctest orchestration" of the manifest: ``tests/CMakeLists.txt``
 registers it as the ``wxlunasvg_cases`` CTest test. It is Python, not PowerShell
 (plan decision 2b #18). The W3C reference-PNG subset is *not* run here - it is
 report-only and lives in ``tests/tools/run_w3c.py`` (plan decision 2b #13).
@@ -29,7 +29,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional
 
-# Reuse the Phase 3 tooling instead of duplicating render/compare logic.
+# Reuse existing tooling instead of duplicating render/compare logic.
 from bless import (
     DEFAULT_MANIFEST,
     baselines_differ,

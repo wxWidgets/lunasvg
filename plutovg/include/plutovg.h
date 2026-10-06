@@ -29,6 +29,16 @@
 extern "C" {
 #endif
 
+
+#if !defined(PLUTOVG_BUILD_STATIC) && !defined(PLUTOVG_BUILD)
+    // wxWidgets compatibility: plutovg is always built as a static library.
+    // wxWidgets compiles it via wx_add_builtin_library, which defines neither
+    // PLUTOVG_BUILD nor PLUTOVG_BUILD_STATIC (and does not set WXBUILDING), so
+    // default to a static build whenever neither macro is already set.
+    #define PLUTOVG_BUILD_STATIC
+    #define PLUTOVG_BUILD
+#endif
+
 #if defined(PLUTOVG_BUILD_STATIC)
 #define PLUTOVG_EXPORT
 #define PLUTOVG_IMPORT

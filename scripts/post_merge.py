@@ -46,45 +46,73 @@ NAMESPACE_REPLACEMENT_PATTERN = re.compile(r'\bnamespace(\s+)lunasvg\b')
 QUALIFIED_REPLACEMENT_PATTERN = re.compile(r'\blunasvg(\s*::)')
 
 # The merged header must end up with exactly one wx-compat guard per macro. The
-# `!defined(LUNASVG_BUILD_STATIC)` guard stops an externally supplied
-# -DLUNASVG_BUILD_STATIC (CMakeLists.txt and meson.build pass it for static
-# builds) from being redefined, and the comment records why the fork forces the
-# static build inside wxWidgets. WXBUILDING gates the define instead of
-# WXMAKINGDLL because it is set for both static and shared wx builds, whereas
-# WXMAKINGDLL is only set while building wx itself as a DLL - gating on it would
-# silently turn lunasvg into a DLL in a shared wx build.
-WX_DEFINES_BLOCK = (
-    '#if defined(WXBUILDING) && !defined(LUNASVG_BUILD_STATIC)',
-    '    // wxWidgets compatibility: lunasvg is always built as a static library.',
-    '    #define LUNASVG_BUILD_STATIC',
-    '#endif',
-    '',
-    '#ifdef WXBUILDING',
-    '    #define LUNASVG_BUILD',
-    '#endif',
-)
+# guard defines <LIB>_BUILD_STATIC and <LIB>_BUILD only when neither is already
+# set, so an externally supplied -D<LIB>_BUILD_STATIC (CMakeLists.txt and
+# meson.build pass it for static builds) is never redefined, and a DLL build that
+# defines <LIB>_BUILD keeps its dllexport/dllimport selection.
+#
+# The no-macro default exists because wxWidgets compiles lunasvg and plutovg with
+# wx_add_builtin_library, which defines neither <LIB>_BUILD nor <LIB>_BUILD_STATIC
+# and does not set WXBUILDING for that target. Without the fallback <LIB>_API
+# stays __declspec(dllimport) and every symbol the static archive defines is
+# referenced through an unresolved __imp_ thunk (lld: "not an import library").
+# The only behaviour the fallback changes is a consumer that includes the header
+# with no macro at all: it now links static, which still resolves through a DLL's
+# import library for functions.
+#
+# The same block is applied to both include/lunasvg.h and the vendored plutovg
+# header (plutovg/include/plutovg.h), so the helpers below take the library's
+# macro prefix (`LUNASVG` or `PLUTOVG`) as a parameter.
+def wx_defines_block(prefix: str) -> Tuple[str, ...]:
+    """Return the canonical WX define guard block for the given macro prefix."""
+    return (
+        f'#if !defined({prefix}_BUILD_STATIC) && !defined({prefix}_BUILD)',
+        f'    // wxWidgets compatibility: {prefix.lower()} is always built as a static library.',
+        f'    // wxWidgets compiles it via wx_add_builtin_library, which defines neither',
+        f'    // {prefix}_BUILD nor {prefix}_BUILD_STATIC (and does not set WXBUILDING), so',
+        f'    // default to a static build whenever neither macro is already set.',
+        f'    #define {prefix}_BUILD_STATIC',
+        f'    #define {prefix}_BUILD',
+        '#endif',
+    )
 
-# Matches any guard block that defines one of the two WX macros, in whichever
-# position or spelling a merge left it. Everything this matches is removed before
-# WX_DEFINES_BLOCK is re-inserted, so a header carrying both the wx copy and the
-# post_merge copy collapses to one block instead of warning.
-WX_DEFINES_BLOCK_PATTERN = re.compile(
-    r'(?:^[ \t]*\n)?'
-    r'^[ \t]*#if(?:n?def)?[^\n]*\b(?:WXMAKINGDLL|WXBUILDING)\b[^\n]*\n'
-    r'(?:^[ \t]*(?!#)[^\n]*\n)*?'
-    r'^[ \t]*#[ \t]*define[ \t]+LUNASVG_BUILD(?:_STATIC)?\b[^\n]*\n'
-    r'^[ \t]*#endif[^\n]*\n'
-    r'(?:^[ \t]*\n)?',
-    re.MULTILINE,
-)
 
-# Where the canonical block goes: immediately before the LUNASVG_EXPORT selection
+# Matches any #if...#endif block that defines one of the two WX macros for the
+# given library, in whichever position or spelling a merge left it (the older
+# two-block WXBUILDING form or the current single fallback block). Everything this
+# matches is removed before the canonical block is re-inserted, so a header
+# carrying both the wx copy and the post_merge copy collapses to one block instead
+# of warning.
+def wx_defines_block_pattern(prefix: str) -> re.Pattern:
+    """Return the regex matching a duplicated WX define block for ``prefix``."""
+    define_line = rf'^[ \t]*#[ \t]*define[ \t]+{prefix}_BUILD(?:_STATIC)?\b[^\n]*\n'
+    # A filler line is any line that does not itself open or close a
+    # preprocessor conditional. Excluding them keeps the match inside a single
+    # #if...#endif group; without it the lazy filler runs past an #endif and
+    # consumes every earlier directive up to the first <LIB>_BUILD define,
+    # deleting the header's include guard and C++17 check along with it.
+    filler = r'(?:(?!^[ \t]*#[ \t]*(?:if|ifdef|ifndef|elif|else|endif)\b)[^\n]*\n)'
+    return re.compile(
+        r'(?:^[ \t]*\n)?'
+        r'^[ \t]*#if[^\n]*\n'
+        rf'{filler}*?'
+        rf'{define_line}'
+        rf'{filler}*?'
+        r'^[ \t]*#endif[^\n]*\n'
+        r'(?:^[ \t]*\n)?',
+        re.MULTILINE,
+    )
+
+
+# Where the canonical block goes: immediately before the <LIB>_EXPORT selection
 # (the wx position, so the define still drives export visibility), falling back to
 # the extern "C" line for headers that carry no export block.
-WX_DEFINES_ANCHOR_PATTERNS = (
-    r'^#if\s+defined\s*\(\s*LUNASVG_BUILD_STATIC\s*\)',
-    r'^extern\s+"C"\s*\{',
-)
+def wx_defines_anchor_patterns(prefix: str) -> Tuple[str, ...]:
+    """Return the anchor regexes marking where the WX define block belongs."""
+    return (
+        rf'^#if\s+defined\s*\(\s*{prefix}_BUILD_STATIC\s*\)',
+        r'^extern\s+"C"\s*\{',
+    )
 
 
 class ChangeTracker:
@@ -183,22 +211,26 @@ def add_cpp17_check(content: str) -> Tuple[str, bool]:
     return content, False
 
 
-def add_wx_defines(content: str) -> Tuple[str, bool]:
+def add_wx_defines(content: str, prefix: str) -> Tuple[str, bool]:
     """Normalise the WX define guards to a single canonical copy.
 
-    A merge can leave more than one guard that defines LUNASVG_BUILD_STATIC - the
-    wx header's own block plus the one an earlier post_merge.py run wrote - and the
-    duplicate makes the compiler warn ``macro redefined`` in every lunasvg
-    translation unit. Every existing block is dropped and the canonical one is
-    re-inserted once, immediately before the LUNASVG_EXPORT selection.
+    A merge can leave more than one guard that defines ``<prefix>_BUILD_STATIC`` -
+    the wx header's own block plus the one an earlier post_merge.py run wrote - and
+    the duplicate makes the compiler warn ``macro redefined`` in every translation
+    unit. Every existing block is dropped and the canonical one is re-inserted
+    once, immediately before the ``<prefix>_EXPORT`` selection.
     """
-    stripped = WX_DEFINES_BLOCK_PATTERN.sub('', content)
+    block = wx_defines_block(prefix)
+    block_pattern = wx_defines_block_pattern(prefix)
+    anchor_patterns = wx_defines_anchor_patterns(prefix)
+
+    stripped = block_pattern.sub('', content)
     lines = stripped.split('\n')
 
-    for anchor_pattern in WX_DEFINES_ANCHOR_PATTERNS:
+    for anchor_pattern in anchor_patterns:
         for index, line in enumerate(lines):
             if re.match(anchor_pattern, line):
-                lines[index:index] = ['', *WX_DEFINES_BLOCK, '']
+                lines[index:index] = ['', *block, '']
                 normalized = '\n'.join(lines)
                 return normalized, normalized != content
 
@@ -262,7 +294,7 @@ def process_lunasvg_header(file_path: Path, dry_run: bool, tracker: ChangeTracke
         changes_made.append("Added C++17 compiler check")
 
     # Check 2: WX defines
-    content, changed = add_wx_defines(content)
+    content, changed = add_wx_defines(content, 'LUNASVG')
     if changed:
         changes_made.append("Normalized WX defines")
 
@@ -281,6 +313,39 @@ def process_lunasvg_header(file_path: Path, dry_run: bool, tracker: ChangeTracke
 
         for change in changes_made:
             tracker.add(str(file_path), change)
+        return True
+
+    return False
+
+
+def process_plutovg_header(file_path: Path, dry_run: bool, tracker: ChangeTracker) -> bool:
+    """Process plutovg/include/plutovg.h so plutovg builds as a static library.
+
+    The vendored plutovg header carries the same PLUTOVG_EXPORT/PLUTOVG_IMPORT
+    selection as include/lunasvg.h, so it needs the same WX define block to force
+    the static build when plutovg is compiled as part of wxWidgets. Only the WX
+    defines apply here: plutovg is a C library with no namespace, so the C++17
+    check and the namespace rewrite that include/lunasvg.h needs do not.
+    """
+    try:
+        content, line_ending = read_source_text(file_path)
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}", file=sys.stderr)
+        return False
+
+    original_content = content
+
+    content, changed = add_wx_defines(content, 'PLUTOVG')
+
+    if content != original_content:
+        if not dry_run:
+            try:
+                write_source_text(file_path, content, line_ending)
+            except Exception as e:
+                print(f"Error writing {file_path}: {e}", file=sys.stderr)
+                return False
+
+        tracker.add(str(file_path), "Normalized WX defines")
         return True
 
     return False
@@ -346,6 +411,15 @@ def main():
         process_lunasvg_header(lunasvg_header, args.dry_run, tracker)
     else:
         print(f"Warning: {lunasvg_header} not found.", file=sys.stderr)
+
+    # Process plutovg/include/plutovg.h so the vendored plutovg library is built
+    # as a static library too when it is compiled as part of wxWidgets.
+    plutovg_header = root_dir / 'plutovg' / 'include' / 'plutovg.h'
+    if plutovg_header.exists():
+        print(f"Checking {plutovg_header}...")
+        process_plutovg_header(plutovg_header, args.dry_run, tracker)
+    else:
+        print(f"Warning: {plutovg_header} not found.", file=sys.stderr)
 
     # Process all C++ files for namespace changes
     print("\nChecking C++ files for namespace...")

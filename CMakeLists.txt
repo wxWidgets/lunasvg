@@ -167,9 +167,9 @@ endif()
 option(LUNASVG_BUILD_TESTS "Build the wxlunasvg test suite" OFF)
 if(LUNASVG_BUILD_TESTS)
     if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-        # Determinism (plan decisions 2b #9 and Phase 3): the golden-image suite
-        # must never pick up host fonts, so the library is always built without
-        # automatic system-font loading when the tests are enabled.
+        # Determinism: the golden-image suite  must never pick up host fonts,
+        # so the library is always built without automatic system-font loading
+        # when the tests are enabled.
         if(NOT LUNASVG_DISABLE_LOAD_SYSTEM_FONTS)
             message(STATUS "LUNASVG_BUILD_TESTS=ON: forcing LUNASVG_DISABLE_LOAD_SYSTEM_FONTS for deterministic rendering.")
             target_compile_definitions(lunasvg PRIVATE LUNASVG_DISABLE_LOAD_SYSTEM_FONTS)
