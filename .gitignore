@@ -1,4 +1,6 @@
 /build
 /.act/
+/subprojects/*
+!/subprojects/*.wrap
 *.user
 scripts/__pycache__

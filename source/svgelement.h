@@ -27,6 +27,7 @@ public:
     virtual bool isPaintElement() const { return false; }
     virtual bool isGraphicsElement() const { return false; }
     virtual bool isGeometryElement() const { return false; }
+    virtual bool isTextContentElement() const { return false; }
     virtual bool isTextPositioningElement() const { return false; }
 
     Document* document() const { return m_document; }

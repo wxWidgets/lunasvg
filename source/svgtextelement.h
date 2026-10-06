@@ -67,17 +67,11 @@ private:
     float m_y = 0;
 };
 
-class SVGTextPositioningElement : public SVGGraphicsElement {
+class SVGTextContentElement : public SVGGraphicsElement {
 public:
-    SVGTextPositioningElement(Document* document, ElementID id);
+    SVGTextContentElement(Document* document, ElementID id);
 
-    bool isTextPositioningElement() const final { return true; }
-
-    const LengthList& x() const { return m_x.values(); }
-    const LengthList& y() const { return m_y.values(); }
-    const LengthList& dx() const { return m_dx.values(); }
-    const LengthList& dy() const { return m_dy.values(); }
-    const NumberList& rotate() const { return m_rotate.values(); }
+    bool isTextContentElement() const final { return true; }
 
     const SVGLength& textLength() const { return m_textLength; }
     LengthAdjust lengthAdjust() const { return m_lengthAdjust.value(); }
@@ -103,12 +97,6 @@ public:
 
 private:
     float convertBaselineOffset(const BaselineShift& baselineShift) const;
-    SVGLengthList m_x;
-    SVGLengthList m_y;
-    SVGLengthList m_dx;
-    SVGLengthList m_dy;
-    SVGNumberList m_rotate;
-
     SVGLength m_textLength;
     SVGEnumeration<LengthAdjust> m_lengthAdjust;
 
@@ -127,6 +115,26 @@ private:
     WritingMode m_writing_mode = WritingMode::Horizontal;
     TextOrientation m_text_orientation = TextOrientation::Mixed;
     Direction m_direction = Direction::Ltr;
+};
+
+class SVGTextPositioningElement : public SVGTextContentElement {
+public:
+    SVGTextPositioningElement(Document* document, ElementID id);
+
+    bool isTextPositioningElement() const final { return true; }
+
+    const LengthList& x() const { return m_x.values(); }
+    const LengthList& y() const { return m_y.values(); }
+    const LengthList& dx() const { return m_dx.values(); }
+    const LengthList& dy() const { return m_dy.values(); }
+    const NumberList& rotate() const { return m_rotate.values(); }
+
+private:
+    SVGLengthList m_x;
+    SVGLengthList m_y;
+    SVGLengthList m_dx;
+    SVGLengthList m_dy;
+    SVGNumberList m_rotate;
 };
 
 class SVGTSpanElement final : public SVGTextPositioningElement {

@@ -1,7 +1,7 @@
 project('lunasvg', 'cpp',
     version: '3.5.0',
     license: 'MIT',
-    meson_version: '>=0.59.0',
+    meson_version: '>=1.3.0',
     default_options: ['cpp_std=c++17']
 )
 
@@ -34,6 +34,10 @@ endif
 
 if get_option('load-system-fonts').disabled()
     lunasvg_cpp_args += ['-DLUNASVG_DISABLE_LOAD_SYSTEM_FONTS']
+endif
+
+if get_option('external-resources').disabled()
+    lunasvg_cpp_args += ['-DLUNASVG_DISABLE_EXTERNAL_RESOURCES']
 endif
 
 lunasvg_lib = library('lunasvg', lunasvg_sources,
