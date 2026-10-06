@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Idempotency test for ``scripts/post_merge.py`` (plan section 6, Phase 6).
+"""Idempotency test for ``scripts/post_merge.py``.
 
 The upstream-sync gate (``scripts/sync_upstream.py``) and the structural-lint CI
 job both depend on one property: once ``post_merge.py`` has normalised a tree, a
@@ -66,6 +66,30 @@ int example() { return 1; }
 } // namespace lunasvg
 """
 
+# A tree that already carries the older two-block WXBUILDING form (e.g. a merge
+# of a branch normalised by a previous post_merge.py) must collapse to the single
+# canonical block without the strip touching anything above it.
+OLD_WX_BLOCK_HEADER = """\
+#ifndef LUNASVG_H
+#define LUNASVG_H
+
+#include <cstdint>
+
+#if defined(WXBUILDING) && !defined(LUNASVG_BUILD_STATIC)
+    // wxWidgets compatibility: lunasvg is always built as a static library.
+    #define LUNASVG_BUILD_STATIC
+#endif
+
+#ifdef WXBUILDING
+    #define LUNASVG_BUILD
+#endif
+
+#if defined(LUNASVG_BUILD_STATIC)
+#define LUNASVG_EXPORT
+#define LUNASVG_IMPORT
+#endif
+"""
+
 PROSE_COMMENT = "// lunasvg is the legacy name; this comment mentions it as prose and must survive."
 STRING_LITERAL = 'static const char* kLegacyName = "lunasvg";'
 
@@ -130,6 +154,23 @@ class PostMergeIdempotencyTest(unittest.TestCase):
         # Prose and literals that merely mention the legacy name are not rewritten.
         self.assertIn(PROSE_COMMENT, source)
         self.assertIn(STRING_LITERAL, source)
+
+    def test_pre_existing_wx_block_collapses_without_data_loss(self) -> None:
+        self.header.write_text(OLD_WX_BLOCK_HEADER, encoding="utf-8")
+        self.assertEqual(self.run_post_merge().returncode, 0)
+
+        header = self.header.read_text(encoding="utf-8")
+        # Nothing above the block may be consumed by removing the old guard.
+        self.assertTrue(header.startswith("#ifndef LUNASVG_H\n#define LUNASVG_H"))
+        self.assertIn("#include <cstdint>", header)
+        # The two old guards collapse to exactly one canonical block.
+        self.assertIn("#if !defined(LUNASVG_BUILD_STATIC)", header)
+        self.assertEqual(header.count("#define LUNASVG_BUILD_STATIC"), 1)
+        self.assertEqual(header.count("#define LUNASVG_BUILD\n"), 1)
+
+        second = self.run_post_merge("--dry-run")
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertIn(NO_CHANGES, second.stdout)
 
 
 if __name__ == "__main__":

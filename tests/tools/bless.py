@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Regenerate golden-image baselines for the wxlunasvg test suite (plan Phase 3).
+Regenerate golden-image baselines for the wxlunasvg test suite.
 
 Renders each corpus case (``<case>/test.svg``) through the ``svgrender`` helper
 using the per-case overrides in ``tests/data/manifest.json`` and replaces
@@ -198,7 +198,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     case_keys = args.case if args.case else sorted(manifest["cases"].keys())
     if not case_keys:
-        print("No cases in the manifest yet (the corpus is populated in Phase 4). Nothing to bless.")
+        print("No cases in the manifest yet. Nothing to bless.")
         return 0
 
     defaults = manifest.get("defaults", {})

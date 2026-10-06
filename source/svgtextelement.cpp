@@ -444,26 +444,16 @@ void SVGTextFragmentsBuilder::fillCharacterPositions(const SVGTextPosition& posi
     }
 }
 
-SVGTextPositioningElement::SVGTextPositioningElement(Document* document, ElementID id)
+SVGTextContentElement::SVGTextContentElement(Document* document, ElementID id)
     : SVGGraphicsElement(document, id)
-    , m_x(PropertyID::X, LengthDirection::Horizontal, LengthNegativeMode::Allow)
-    , m_y(PropertyID::Y, LengthDirection::Vertical, LengthNegativeMode::Allow)
-    , m_dx(PropertyID::Dx, LengthDirection::Horizontal, LengthNegativeMode::Allow)
-    , m_dy(PropertyID::Dy, LengthDirection::Vertical, LengthNegativeMode::Allow)
-    , m_rotate(PropertyID::Rotate)
     , m_textLength(PropertyID::TextLength, LengthDirection::Horizontal, LengthNegativeMode::Forbid)
     , m_lengthAdjust(PropertyID::LengthAdjust, LengthAdjust::Spacing)
 {
-    addProperty(m_x);
-    addProperty(m_y);
-    addProperty(m_dx);
-    addProperty(m_dy);
-    addProperty(m_rotate);
     addProperty(m_textLength);
     addProperty(m_lengthAdjust);
 }
 
-void SVGTextPositioningElement::layoutElement(const SVGLayoutState& state)
+void SVGTextContentElement::layoutElement(const SVGLayoutState& state)
 {
     m_font = state.font();
     m_fill = getPaintServer(state.fill(), state.fill_opacity());
@@ -485,7 +475,7 @@ void SVGTextPositioningElement::layoutElement(const SVGLayoutState& state)
     m_direction = state.direction();
 }
 
-float SVGTextPositioningElement::convertBaselineOffset(const BaselineShift& baselineShift) const
+float SVGTextContentElement::convertBaselineOffset(const BaselineShift& baselineShift) const
 {
     if(baselineShift.type() == BaselineShift::Type::Baseline)
         return 0.f;
@@ -503,6 +493,21 @@ float SVGTextPositioningElement::convertBaselineOffset(const BaselineShift& base
     if(length.units() == LengthUnits::Em)
         return length.value() * m_font.size();
     return length.value();
+}
+
+SVGTextPositioningElement::SVGTextPositioningElement(Document* document, ElementID id)
+    : SVGTextContentElement(document, id)
+    , m_x(PropertyID::X, LengthDirection::Horizontal, LengthNegativeMode::Allow)
+    , m_y(PropertyID::Y, LengthDirection::Vertical, LengthNegativeMode::Allow)
+    , m_dx(PropertyID::Dx, LengthDirection::Horizontal, LengthNegativeMode::Allow)
+    , m_dy(PropertyID::Dy, LengthDirection::Vertical, LengthNegativeMode::Allow)
+    , m_rotate(PropertyID::Rotate)
+{
+    addProperty(m_x);
+    addProperty(m_y);
+    addProperty(m_dx);
+    addProperty(m_dy);
+    addProperty(m_rotate);
 }
 
 SVGTSpanElement::SVGTSpanElement(Document* document)

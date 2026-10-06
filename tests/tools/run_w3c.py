@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report-only W3C SVG 1.1 reference-image tracker (plan Phase 4).
+"""Report-only W3C SVG 1.1 reference-image tracker.
 
 Renders every vendored case in ``tests/w3c/cases/`` through the ``svgrender``
 helper and compares the result with the external W3C reference PNG through the
@@ -36,7 +36,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional
 
-# Reuse the Phase 3 tooling instead of duplicating render/compare logic.
+# Reuse existing tooling instead of duplicating render/compare logic.
 from bless import find_tool, render_case
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

@@ -1,14 +1,15 @@
-# Upstream drift - nightly + on-demand probe of upstream lunasvg (plan Phase 6).
+# Upstream drift - nightly + on-demand probe of upstream lunasvg.
 #
 # Runs the HARD-GATED sync path (scripts/sync_upstream.py) against the current
-# upstream/master: it fetches upstream, stages a merge onto a throwaway
-# sync/upstream-* branch, normalises with scripts/post_merge.py and runs the full
-# suite. It never pushes (--no-push), so origin/wx is untouched; a green run only
-# *reports* that upstream has advanced and that the merge still passes.
+# upstream/master: it fetches upstream, stages a merge into the checked-out
+# branch (here wx), normalises with scripts/post_merge.py and runs the full
+# suite. It never commits and never pushes (sync_upstream.py never does), so
+# origin/wx is untouched; a green run only *reports* that upstream has advanced
+# and that the merge still passes.
 #
 # Two outcomes matter:
-#   * suite RED after merging upstream  -> the gate refuses to commit; the job
-#     fails so the breakage is visible immediately (sync script exit code 2).
+#   * suite RED after merging upstream  -> nothing is committed; the job fails so
+#     the breakage is visible immediately (sync script exit code 2).
 #   * upstream advanced, suite GREEN    -> drift; the job fails by default so the
 #     scheduled run is a visible "time to sync" signal (exit code 3). Dispatch
 #     with fail_on_drift=false to report without failing.
@@ -72,8 +73,6 @@ jobs:
           set +e
           python3 scripts/sync_upstream.py \
             --upstream-ref "${UPSTREAM_REF:-upstream/master}" \
-            --base wx \
-            --no-push \
             --fail-on-drift \
             --build-dir build 2>&1 | tee drift.log
           code=${PIPESTATUS[0]}
@@ -110,7 +109,7 @@ jobs:
               fi
               ;;
             2)
-              echo "**Suite is RED after merging upstream.** The gate refused to commit." >> "$GITHUB_STEP_SUMMARY"
+              echo "**Suite is RED after merging upstream.** Nothing was committed." >> "$GITHUB_STEP_SUMMARY"
               echo "::error::upstream merge fails the suite; see the drift.log artifact"
               exit 1
               ;;

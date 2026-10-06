@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025 Samuel Ugochukwu <sammycageagle@gmail.com>
+ * Copyright (c) 2020-2026 Samuel Ugochukwu <sammycageagle@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,16 @@
 extern "C" {
 #endif
 
+
+#if !defined(PLUTOVG_BUILD_STATIC) && !defined(PLUTOVG_BUILD)
+    // wxWidgets compatibility: plutovg is always built as a static library.
+    // wxWidgets compiles it via wx_add_builtin_library, which defines neither
+    // PLUTOVG_BUILD nor PLUTOVG_BUILD_STATIC (and does not set WXBUILDING), so
+    // default to a static build whenever neither macro is already set.
+    #define PLUTOVG_BUILD_STATIC
+    #define PLUTOVG_BUILD
+#endif
+
 #if defined(PLUTOVG_BUILD_STATIC)
 #define PLUTOVG_EXPORT
 #define PLUTOVG_IMPORT
@@ -51,7 +61,7 @@ extern "C" {
 
 #define PLUTOVG_VERSION_MAJOR 1
 #define PLUTOVG_VERSION_MINOR 3
-#define PLUTOVG_VERSION_MICRO 2
+#define PLUTOVG_VERSION_MICRO 3
 
 #define PLUTOVG_VERSION_ENCODE(major, minor, micro) (((major) * 10000) + ((minor) * 100) + ((micro) * 1))
 #define PLUTOVG_VERSION PLUTOVG_VERSION_ENCODE(PLUTOVG_VERSION_MAJOR, PLUTOVG_VERSION_MINOR, PLUTOVG_VERSION_MICRO)

@@ -24,10 +24,14 @@ python scripts/post_merge.py --root /path/to/wxlunasvg
    - Adds a C++17 version check with `#error` if not present
    - Placed before the first `#include` directive
 
-2. **include/lunasvg.h - WX Defines**
-   - Normalizes the `LUNASVG_BUILD_STATIC` / `LUNASVG_BUILD` guards to a single block, so a merge cannot leave a
-duplicate `#define LUNASVG_BUILD_STATIC` that warns on every translation unit
-   - Placed before the `LUNASVG_EXPORT` selection block
+2. **include/lunasvg.h and plutovg/include/plutovg.h - WX Defines**
+   - Normalizes the `LUNASVG_BUILD_STATIC` / `LUNASVG_BUILD` (and `PLUTOVG_*`) guards to a single block, so a merge
+cannot leave a duplicate `#define ..._BUILD_STATIC` that warns on every translation unit
+   - The block defaults to a static build whenever neither `..._BUILD` nor `..._BUILD_STATIC` is set.
+This is what wxWidgets‘ builtin-library build (`wx_add_builtin_library`) needs: it defines no library-specific macro
+(and no `WXBUILDING`), so without the fallback `<LIB>_API` stays `__declspec(dllimport)` and the static archive’s own
+symbols are referenced through unresolved `__imp_` thunks (`lld: not an import library`)
+   - Placed before the `<LIB>_EXPORT` selection block
 
 3. **All C++ Files - Namespace Fix**
    - Replaces `namespace lunasvg` with `namespace wxlunasvg`
@@ -53,47 +57,52 @@ a tree whose tests were broken.
 ## sync_upstream.py - the upstream-sync gate (Goal 3)
 
 `origin/master` is a strict, fast-forward-only mirror of `upstream/master` (decision 2b #10), and the integration branch
-is `wx`. Pulling upstream is therefore a merge onto a throwaway `sync/upstream-*` branch, normalised, and committed
-**only if the full suite passes**:
+is `wx`. Pulling upstream is therefore a merge of the upstream ref into the branch you are **currently on**, normalised
+with `post_merge.py` and built/tested.
+The script **never commits and never pushes**: on a green suite the merge is left staged so you can add tests for any
+new upstream functionality, fix anything the merge broke, and only then commit and submit the branch as a PR:
 
 ```bash
 python scripts/sync_upstream.py                 # sync upstream/master
 python scripts/sync_upstream.py --tag v3.4.0    # sync a release tag
 python scripts/sync_upstream.py --dry-run       # print the plan, change nothing
-python scripts/sync_upstream.py --no-push       # gate locally, push by hand
 ```
 
-The seven steps mirror plan section 6 (Phase 6):
+The six steps mirror plan section 6 (Phase 6):
 
 1. `git fetch <upstream-remote>`
-2. create `sync/upstream-<tag|YYYYMMDD>` from `wx`
-3. stage a merge of the upstream ref (`git merge --no-ff --no-commit` - still nothing committed)
-4. run `scripts/post_merge.py`
-5. `git add -A`
-6. build and run the full suite (`tests/run_tests.py`, i.e. cmake + ctest)
-7. green: `git commit` and (unless `--no-push`) `git push origin`; red: leave the tree staged for inspection, commit
-   nothing, exit `2`
+2. stage a merge of the upstream ref into the current branch (`git merge --no-ff --no-commit` - nothing committed)
+3. run `scripts/post_merge.py`
+4. `git add -A`
+5. build and run the full suite (`tests/run_tests.py`, i.e. cmake + ctest)
+6. green: leave the merge staged on the current branch and **commit nothing** (add tests for any new upstream
+   functionality, then commit and open the PR yourself); red: leave the tree staged for inspection, commit nothing, exit
+   `2`
 
-**This is a HARD gate even though PR CI is advisory** (decision 2b #13): Goal 3 requires the suite to pass before the
-sync may commit, and that does not depend on branch protection.
+**This is a HARD gate even though PR CI is advisory** (decision 2b #13): Goal 3 requires the full suite to pass on the
+merged tree before *you* commit, and that does not depend on branch protection.
+
+**The script never commits and never pushes.** On green it leaves the merge staged on your current branch; committing
+it, pushing it (to your fork, `rwLunaSVG`) and opening the PR are your decision — or use the `pr: draft to wxWidgets`
+task, which pushes to the fork and opens a draft PR against `origin/wx`.
 
 | Exit code | Meaning |
 |---|---|
 | `0` | success (synced, or already up to date) |
 | `1` | tooling / git error (dirty tree, conflict, bad ref, ...) |
-| `2` | suite red - refused to commit |
+| `2` | suite red - nothing committed |
 | `3` | upstream advanced and the suite is green (`--fail-on-drift`) |
 
-Options: `--upstream-remote`, `--upstream-ref`, `--tag`, `--base`, `--branch`, `--build-dir`, `--catch2-dir`, `--jobs`,
-`--no-push`, `--fail-on-drift`, `--force`, `--dry-run`. `--suite-command` replaces the suite command entirely and exists
-only for exercising the gate itself without a full build; normal runs use `tests/run_tests.py`.
+Options: `--upstream-remote`, `--upstream-ref`, `--tag`, `--build-dir`, `--catch2-dir`, `--jobs`, `--fail-on-drift`,
+`--dry-run`. `--suite-command` replaces the suite command entirely and exists only for exercising the gate itself
+without a full build; normal runs use `tests/run_tests.py`.
 
 Python only, no `.ps1` shim (decision 2b #18).
 
 ### Drift detection
 
 `.github/workflows/upstream-drift.yml` runs nightly and on demand.
-It executes the same sync path with `--no-push`, so `origin` is never touched: a green run reports that upstream
+It executes the same sync path (which never pushes), so `origin` is never touched: a green run reports that upstream
 advanced (the job fails by default so the scheduled run is a visible “time to sync” signal; dispatch with
 `fail_on_drift=false` to only report), and a red suite fails the job outright.
 
@@ -146,10 +155,10 @@ gh repo set-default wxWidgets/lunasvg     # gh pr/issue default to the fork, not
 whose URL points at `sammycage/lunasvg`). Bypassing it requires deliberately overriding the hook path, which is the
 point: pushing to `upstream` must be a conscious act, not the default.
 
-> Commit the hook with the executable bit set (`git update-index --chmod=+x scripts/hooks/pre-push`) so the > guard is
-> active on Linux/macOS checkouts.
-> The optional `remote.upstream.pushurl` sentinel from the plan is > intentionally left unset — the hook is the primary
-> guard.
+> Commit the hook with the executable bit set (`git update-index --chmod=+x scripts/hooks/pre-push`) so the > guard is >
+> \> active on Linux/macOS checkouts.
+> \> \> The optional `remote.upstream.pushurl` sentinel from the plan is > intentionally left unset — the hook is the >
+> primary > guard.
 
 ### Deferred
 
