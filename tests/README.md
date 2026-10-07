@@ -21,6 +21,9 @@ ctest --test-dir build --output-on-failure
 python tests/run_tests.py --configure
 ```
 
+To reproduce the wxWidgets warning-flags gate locally, add `--wx-check`: `python tests/run_tests.py --configure --wx-check`
+runs `scripts/check_wx_cxxflags.py` (compiling every `source/*.cpp` with wx's warning set) before `ctest`.
+
 Catch2 v3 is fetched with `FetchContent` (never a submodule); point `-DLUNASVG_CATCH2_DIR=<checkout>` at a pre-cloned
 copy for offline builds.
 
@@ -36,6 +39,7 @@ demand:
 |---|---|
 | `test` | OS x compiler x C++ standard matrix - `{ubuntu, macos, windows}` x `{gcc, clang, msvc}` (only the compilers each image actually has, via `exclude`) x `{C++17, C++20}`. Configures with `-DLUNASVG_BUILD_TESTS=ON`, builds, then runs `ctest --output-on-failure`. |
 | `sanitizers` | ASAN + UBSAN on Linux/clang, building as C++20, mirroring wxWidgets' `--with-lunasvg --with-cxx=20` job (the knowledge-base sanitizer gate). |
+| `wx-warnings` | Single gcc/Linux leg that runs `scripts/check_wx_cxxflags.py` - it compiles every `source/*.cpp` with wxWidgets' own warning set (`-Wall -Wundef -Wunused-parameter -Wno-ctor-dtor-privacy -Woverloaded-virtual -DwxENABLE_EXTRA_WARNINGS -Wsuggest-override -Werror -Wno-error=cpp` at `-std=gnu++20`) exactly as wx compiles the bundled copy. Catches warnings (most importantly unused parameters) that are harmless under the fork's CMake flags but fatal inside a `--with-lunasvg` wxWidgets build. The same script backs the local sync gate (`scripts/sync_upstream.py` step 5). |
 | `structural-lint` | No build, no compiler - `scripts/post_merge.py --dry-run` idempotency (must report no changes), no legacy `namespace lunasvg` left under `include/` + `source/`, and the C++17 `#error` guard present in `include/lunasvg.h`. |
 
 On failure every job uploads the ctest console log (`build/test_results.log`), the CTest logs

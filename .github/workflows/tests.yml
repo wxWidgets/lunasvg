@@ -170,6 +170,36 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  # Mirrors wxWidgets' own compilation of the bundled copy. wx builds lunasvg
+  # with WXLUNASVG_CXXFLAGS - the standard warning set from its
+  # build/bakefiles/common.bkl - and adds -Werror in CI, so a warning that is
+  # harmless under this fork's default CMake flags is fatal inside wx. Only the wx
+  # `--with-lunasvg --with-cxx=20` job catches it; the MSW/CMake jobs never compile
+  # the library at all. This job runs scripts/check_wx_cxxflags.py, which compiles
+  # every lunasvg source with exactly that flag set, so any of them - not just an
+  # unused parameter - fails here first instead of in a downstream wxWidgets
+  # build. That script is the single source of truth for the flag set: the local
+  # hard gate (scripts/sync_upstream.py) runs the very same script, so CI and the
+  # local sync cannot drift apart.
+  #
+  # Regression this guards: bumping the wx submodule e6ebb8d1e0 -> a3cc73ab6b
+  # dropped the fork's `bool /* deep unused */` / `SVGRenderState& /* state */`
+  # spellings in source/svgelement.cpp, so -Wunused-parameter + -Werror broke the
+  # wx build. Normalising that belongs in scripts/post_merge.py; this is the
+  # build that shows it is needed (and that proves the rewrite is correct).
+  wx-warnings:
+    name: wxWidgets warnings (gcc, -Werror)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Compile the library with wxWidgets' warning set
+        # The flag set (WXLUNASVG_CXXFLAGS plus the CI -Werror; -Wsuggest-override
+        # for gcc, -Winconsistent-missing-override for clang) lives in the script
+        # so CI and the local sync gate share a single definition.
+        run: python3 scripts/check_wx_cxxflags.py
+
   # Cheap structural checks that need no compiler and catch the fork's own
   # regressions: the post_merge idempotency guarantee and the two invariants the
   # suite's structural tests also assert.

@@ -1,5 +1,6 @@
 /build
 /.act/
+/.cache/
 /subprojects/*
 !/subprojects/*.wrap
 *.user
