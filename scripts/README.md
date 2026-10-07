@@ -68,14 +68,16 @@ python scripts/sync_upstream.py --tag v3.4.0    # sync a release tag
 python scripts/sync_upstream.py --dry-run       # print the plan, change nothing
 ```
 
-The six steps mirror plan section 6 (Phase 6):
+The seven steps mirror plan section 6 (Phase 6):
 
 1. `git fetch <upstream-remote>`
 2. stage a merge of the upstream ref into the current branch (`git merge --no-ff --no-commit` - nothing committed)
 3. run `scripts/post_merge.py`
 4. `git add -A`
-5. build and run the full suite (`tests/run_tests.py`, i.e. cmake + ctest)
-6. green: leave the merge staged on the current branch and **commit nothing** (add tests for any new upstream
+5. compile every library source under wxWidgets' warning flags (`scripts/check_wx_cxxflags.py`) - a warning, most
+   importantly an unused parameter, is fatal here before it reaches a wx build
+6. build and run the full suite (`tests/run_tests.py`, i.e. cmake + ctest)
+7. green: leave the merge staged on the current branch and **commit nothing** (add tests for any new upstream
    functionality, then commit and open the PR yourself); red: leave the tree staged for inspection, commit nothing, exit
    `2`
 
@@ -90,21 +92,43 @@ task, which pushes to the fork and opens a draft PR against `origin/wx`.
 |---|---|
 | `0` | success (synced, or already up to date) |
 | `1` | tooling / git error (dirty tree, conflict, bad ref, ...) |
-| `2` | suite red - nothing committed |
+| `2` | gate red (the wx-flags compile or the suite) - nothing committed |
 | `3` | upstream advanced and the suite is green (`--fail-on-drift`) |
 
-Options: `--upstream-remote`, `--upstream-ref`, `--tag`, `--build-dir`, `--catch2-dir`, `--jobs`, `--fail-on-drift`,
-`--dry-run`. `--suite-command` replaces the suite command entirely and exists only for exercising the gate itself
-without a full build; normal runs use `tests/run_tests.py`.
+Options: `--upstream-remote`, `--upstream-ref`, `--tag`, `--build-dir`, `--catch2-dir`, `--jobs`, `--wx-check-cxx`,
+`--fail-on-drift`, `--dry-run`. `--wx-check-cxx` selects the compiler for the wx-flags compile (default `g++`).
+`--suite-command` replaces the suite command entirely and exists only for exercising the gate itself without a full
+build; normal runs use `tests/run_tests.py`.
 
 Python only, no `.ps1` shim (decision 2b #18).
+
+### check_wx_cxxflags.py - wxWidgets warning-flags compile
+
+`scripts/check_wx_cxxflags.py` compiles every `source/*.cpp` with wxWidgets' own warning set (`WXLUNASVG_CXXFLAGS` from
+`build/bakefiles/common.bkl`, plus the CI `-Werror`) so a warning - most importantly an unused parameter - is fatal
+locally before it reaches a `--with-lunasvg` wxWidgets build. `sync_upstream.py` runs it as step 5, and the
+`wx-warnings` CI job (`.github/workflows/tests.yml`) runs the same script, so the two can never drift. It exits `0`
+clean, `1` on a compile failure (the guard tripping), `2` when it cannot run (no compiler / no sources).
+
+```bash
+python scripts/check_wx_cxxflags.py              # default compiler: g++
+python scripts/check_wx_cxxflags.py --cxx clang++
+python tests/run_tests.py --wx-check             # the same check, then ctest
+```
+
+On failure it prints the compiler's own diagnostics, indented beneath each failing source - so the log shows the file
+*and* the `line:col: error:` message (plus a copy-pasteable reproduce command), not just the filename. In GitHub Actions
+(and `act`) it additionally emits `::error file=...` annotations so the message surfaces in the run's error list.
+
+It clears `CPATH`/`CPLUS_INCLUDE_PATH`/etc. for the compile (use `--keep-environment` to opt out): an inherited
+`CPLUS_INCLUDE_PATH` points a plain compiler at foreign C++ headers and makes the check fail spuriously.
 
 ### Drift detection
 
 `.github/workflows/upstream-drift.yml` runs nightly and on demand.
 It executes the same sync path (which never pushes), so `origin` is never touched: a green run reports that upstream
 advanced (the job fails by default so the scheduled run is a visible “time to sync” signal; dispatch with
-`fail_on_drift=false` to only report), and a red suite fails the job outright.
+`fail_on_drift=false` to only report), and a red gate fails the job outright.
 
 ### post_merge.py idempotency
 

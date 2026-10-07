@@ -20,8 +20,11 @@ Steps:
    (``--no-ff --no-commit`` - nothing is committed)
 3. run ``scripts/post_merge.py``
 4. ``git add -A``
-5. build and run the full suite (``tests/run_tests.py``, i.e. cmake + ctest)
-6. green: leave the merge staged on the current branch and commit nothing, so
+5. compile every library source under wxWidgets' warning flags
+   (``scripts/check_wx_cxxflags.py``; a warning - most importantly an
+   unused parameter - is fatal here before it reaches a wx build)
+6. build and run the full suite (``tests/run_tests.py``, i.e. cmake + ctest)
+7. green: leave the merge staged on the current branch and commit nothing, so
    you can add tests for any new upstream functionality and submit the branch
    as a PR once you are satisfied
    red:   leave the tree untouched for inspection, commit nothing, exit 2
@@ -33,8 +36,9 @@ Typical use::
     python scripts/sync_upstream.py --dry-run       # print the plan, change nothing
 
 Exit codes: ``0`` success (synced/up to date), ``1`` tooling or git error,
-``2`` suite red, ``3`` upstream advanced and the suite is green
-(``--fail-on-drift``, used by the nightly drift workflow).
+``2`` red (the full suite failed, or the wxWidgets warning-flags compile
+failed), ``3`` upstream advanced and the suite is green (``--fail-on-drift``,
+used by the nightly drift workflow).
 """
 
 import argparse
@@ -139,6 +143,16 @@ def suite_command(args: argparse.Namespace, root: Path) -> List[str]:
     return command
 
 
+def wx_check_command(args: argparse.Namespace, root: Path) -> List[str]:
+    """The wxWidgets warning-flags compile: ``scripts/check_wx_cxxflags.py``."""
+    return [
+        sys.executable,
+        str(root / "scripts" / "check_wx_cxxflags.py"),
+        "--cxx",
+        args.wx_check_cxx,
+    ]
+
+
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -182,10 +196,17 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         help="parallel build jobs forwarded to tests/run_tests.py",
     )
     parser.add_argument(
+        "--wx-check-cxx",
+        default="g++",
+        help="compiler used by the wxWidgets warning-flags check "
+             "(scripts/check_wx_cxxflags.py; default: g++)",
+    )
+    parser.add_argument(
         "--suite-command",
         default=None,
         help="advanced/testing override: replace the suite command entirely "
-             "(the gate then judges *this* command; the default runs tests/run_tests.py)",
+             "(the gate then judges *this* command as well as the wx flag check; "
+             "the default runs tests/run_tests.py)",
     )
     parser.add_argument(
         "--fail-on-drift",
@@ -201,13 +222,14 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 
 
 def print_plan(args: argparse.Namespace, root: Path, branch: str, upstream_ref: str,
-               suite: List[str]) -> None:
+               suite: List[str], wx_check: List[str]) -> None:
     print("sync_upstream.py - hard-gated upstream sync")
     print(f"  repo root     : {root}")
     print(f"  upstream      : {args.upstream_remote} -> {upstream_ref}")
     print(f"  current branch: {branch}")
     print(f"  merge into    : {branch} (staged, never committed)")
     print(f"  build dir     : {args.build_dir}")
+    print(f"  wx check      : {args.wx_check_cxx} (scripts/check_wx_cxxflags.py)")
     print(f"  suite command : {' '.join(suite)}")
     print("  push on green : never (pushing is left to you)")
     print("  commit        : never (green leaves the merge staged for you)")
@@ -218,6 +240,20 @@ def report_red(root: Path, branch: str) -> None:
     print(f"The upstream merge is staged on '{branch}' but was NOT committed.",
           file=sys.stderr)
     print("The tree is left untouched so you can inspect the failures.", file=sys.stderr)
+    print(f"  inspect : git -C {root} status ; git -C {root} diff --cached", file=sys.stderr)
+    print(f"  abort   : git -C {root} reset --hard && git -C {root} clean -fd", file=sys.stderr)
+
+
+def report_wx_check_red(root: Path, branch: str, cxx: str) -> None:
+    print("\n=== WX FLAGS RED - nothing was committed ===", file=sys.stderr)
+    print(f"{cxx} rejected at least one library source under wxWidgets' warning flags",
+          file=sys.stderr)
+    print("(-Werror): any warning - most importantly an unused parameter - is fatal",
+          file=sys.stderr)
+    print("in a wxWidgets --with-lunasvg build. Fix the source (or the post_merge.py",
+          file=sys.stderr)
+    print("rewrite that should have normalised it) and re-run.", file=sys.stderr)
+    print(f"  reproduce: python scripts/check_wx_cxxflags.py --cxx {cxx}", file=sys.stderr)
     print(f"  inspect : git -C {root} status ; git -C {root} diff --cached", file=sys.stderr)
     print(f"  abort   : git -C {root} reset --hard && git -C {root} clean -fd", file=sys.stderr)
 
@@ -242,9 +278,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             args.upstream_remote, args.upstream_ref)
         sync_target = current_branch(root)
         suite = suite_command(args, root)
+        wx_check = wx_check_command(args, root)
 
         if args.dry_run:
-            print_plan(args, root, sync_target, upstream_ref, suite)
+            print_plan(args, root, sync_target, upstream_ref, suite, wx_check)
             print("\n(dry-run: nothing was fetched, merged, built or committed)")
             return EXIT_OK
 
@@ -257,7 +294,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             raise SyncError("working tree is dirty; commit or stash first")
 
         # --- 1. fetch --------------------------------------------------------
-        print(f"\n[1/6] fetch {args.upstream_remote}")
+        print(f"\n[1/7] fetch {args.upstream_remote}")
         if args.tag:
             fetched = git(["fetch", args.upstream_remote, f"refs/tags/{args.tag}:refs/tags/{args.tag}"],
                           root, capture=False)
@@ -269,7 +306,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             raise SyncError(f"upstream ref '{upstream_ref}' not found after fetch")
 
         # --- 2. stage the merge into the current branch (never a commit) -----
-        print(f"\n[2/6] merge {upstream_ref} into {sync_target} (staged, not committed)")
+        print(f"\n[2/7] merge {upstream_ref} into {sync_target} (staged, not committed)")
         merged = git(["merge", "--no-ff", "--no-commit", "--no-edit", upstream_ref],
                      root, capture=False)
         if merged.returncode != 0:
@@ -282,27 +319,39 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             return EXIT_OK
 
         # --- 3. post_merge.py ------------------------------------------------
-        print("\n[3/6] run scripts/post_merge.py")
+        print("\n[3/7] run scripts/post_merge.py")
         post_merge = run([sys.executable, str(root / "scripts" / "post_merge.py"), "--root", str(root)],
                          root, capture=False)
         if post_merge.returncode != 0:
             raise SyncError("scripts/post_merge.py failed")
 
         # --- 4. stage everything ---------------------------------------------
-        print("\n[4/6] git add -A")
+        print("\n[4/7] git add -A")
         staged = git(["add", "-A"], root, capture=True)
         if staged.returncode != 0:
             raise SyncError("git add -A failed")
 
-        # --- 5. the gate: build + full suite ---------------------------------
-        print(f"\n[5/6] build + full suite: {' '.join(suite)}")
+        # --- 5. wxWidgets warning-flags compile (the regression guard) -------
+        print(f"\n[5/7] wxWidgets warning-flags compile: {' '.join(wx_check)}")
+        wx_result = run(wx_check, root, capture=False)
+        if wx_result.returncode == 2:
+            raise SyncError(
+                f"wxWidgets warning-flags check could not run (compiler "
+                f"'{args.wx_check_cxx}' not found); install it or pass "
+                f"--wx-check-cxx")
+        if wx_result.returncode != 0:
+            report_wx_check_red(root, sync_target, args.wx_check_cxx)
+            return EXIT_SUITE_RED
+
+        # --- 6. the gate: build + full suite ---------------------------------
+        print(f"\n[6/7] build + full suite: {' '.join(suite)}")
         suite_result = run(suite, root, capture=False)
         if suite_result.returncode != 0:
             report_red(root, sync_target)
             return EXIT_SUITE_RED
 
-        # --- 6. green: report and stop - the script never commits ------------
-        print("\n[6/6] suite green - the script never commits")
+        # --- 7. green: report and stop - the script never commits ------------
+        print("\n[7/7] suite green - the script never commits")
         report_green(root, sync_target, args.tag or args.upstream_ref)
 
         if args.fail_on_drift:

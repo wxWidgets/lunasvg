@@ -10,6 +10,7 @@ Typical use::
     python tests/run_tests.py --configure   # fresh tree: configure + build + test
     python tests/run_tests.py               # rebuild + test
     python tests/run_tests.py --no-build    # test only
+    python tests/run_tests.py --wx-check    # wxWidgets warning-flags check, then ctest
     python tests/run_tests.py -- -R api     # forward extra args to ctest
 """
 
@@ -54,6 +55,12 @@ def main(argv: list = None) -> int:
         help="pre-cloned Catch2 v3 tree, forwarded as -DLUNASVG_CATCH2_DIR",
     )
     parser.add_argument(
+        "--wx-check",
+        action="store_true",
+        help="also run scripts/check_wx_cxxflags.py (wxWidgets warning flags) "
+             "before ctest",
+    )
+    parser.add_argument(
         "--jobs",
         "-j",
         default=None,
@@ -71,6 +78,11 @@ def main(argv: list = None) -> int:
         return 1
 
     build_dir = (REPO_ROOT / args.build_dir).resolve()
+
+    if args.wx_check:
+        result = run([sys.executable, str(REPO_ROOT / "scripts" / "check_wx_cxxflags.py")], REPO_ROOT)
+        if result != 0:
+            return result
 
     if args.configure:
         configure = [
