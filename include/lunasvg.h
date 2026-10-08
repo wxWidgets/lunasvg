@@ -140,6 +140,11 @@ LUNASVG_API bool lunasvg_add_font_face_from_file(const char* family, bool bold, 
 */
 LUNASVG_API bool lunasvg_add_font_face_from_data(const char* family, bool bold, bool italic, const void* data, size_t length, lunasvg_destroy_func_t destroy_func, void* closure);
 
+/**
+* @brief Destroy the font cache.
+*/
+LUNASVG_API void lunasvg_destroy_font_cache();
+
 #ifdef __cplusplus
 }
 #endif

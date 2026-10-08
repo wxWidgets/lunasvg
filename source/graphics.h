@@ -431,6 +431,8 @@ class FontFaceCache {
 public:
     bool addFontFace(const std::string& family, bool bold, bool italic, const FontFace& face);
     FontFace getFontFace(const std::string& family, bool bold, bool italic) const;
+    void create();
+    void destroy();
 
 private:
     FontFaceCache();

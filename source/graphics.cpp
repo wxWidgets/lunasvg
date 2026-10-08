@@ -452,16 +452,32 @@ FontFace FontFaceCache::getFontFace(const std::string& family, bool bold, bool i
 }
 
 FontFaceCache::FontFaceCache()
-    : m_cache(plutovg_font_face_cache_create())
+    : m_cache(nullptr)
 {
+}
+
+void FontFaceCache::create()
+{
+    if (m_cache)
+        return;
+
+    m_cache = plutovg_font_face_cache_create();
+
 #ifndef LUNASVG_DISABLE_LOAD_SYSTEM_FONTS
     plutovg_font_face_cache_load_sys(m_cache);
 #endif
 }
 
+void FontFaceCache::destroy()
+{
+    plutovg_font_face_cache_destroy(m_cache);
+    m_cache = nullptr;
+}
+
 FontFaceCache* fontFaceCache()
 {
     static FontFaceCache cache;
+    cache.create();
     return &cache;
 }
 

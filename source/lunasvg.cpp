@@ -26,6 +26,11 @@ bool lunasvg_add_font_face_from_data(const char* family, bool bold, bool italic,
     return wxlunasvg::fontFaceCache()->addFontFace(family, bold, italic, wxlunasvg::FontFace(data, length, destroy_func, closure));
 }
 
+void lunasvg_destroy_font_cache()
+{
+    wxlunasvg::fontFaceCache()->destroy();
+}
+
 namespace wxlunasvg {
 
 Bitmap::Bitmap(int width, int height)
