@@ -19,9 +19,9 @@ static plutovg_surface_t* plutovg_surface_create_uninitialized(size_t width, siz
     if(surface == NULL)
         return NULL;
     plutovg_init_reference(surface);
-    surface->width = width;
-    surface->height = height;
-    surface->stride = width * 4;
+    surface->width = (int)width;
+    surface->height = (int)height;
+    surface->stride = (int)(width * 4);
     surface->data = (uint8_t*)(surface + 1);
     return surface;
 }
@@ -102,7 +102,7 @@ plutovg_surface_t* plutovg_surface_load_from_image_base64(const char* data, int 
     size_t didx = 0;
 
     if(length == -1)
-        length = strlen(data);
+        length = (int)strlen(data);
     output_data = malloc(length);
     if(output_data == NULL)
         return NULL;
@@ -142,7 +142,7 @@ plutovg_surface_t* plutovg_surface_load_from_image_base64(const char* data, int 
         output_data[didx] = (((output_data[sidx + 1] << 4) & 255) | ((output_data[sidx + 2] >> 2) & 017));
     }
 
-    surface = plutovg_surface_load_from_image_data(output_data, output_length);
+    surface = plutovg_surface_load_from_image_data(output_data, (int)output_length);
 cleanup:
     free(output_data);
     return surface;

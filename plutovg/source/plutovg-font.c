@@ -839,7 +839,7 @@ int plutovg_font_face_cache_load_file(plutovg_font_face_cache_t* cache, const ch
             while(family_length) {
                 stbtt_uint16 ch = family_name[0] * 256 + family_name[1];
                 if(ch < 0x80) {
-                    entry->family[family_index++] = ch;
+                    entry->family[family_index++] = (char)ch;
                 } else if(ch < 0x800) {
                     entry->family[family_index++] = (0xc0 + (ch >> 6));
                     entry->family[family_index++] = (0x80 + (ch & 0x3f));
@@ -905,7 +905,7 @@ int plutovg_font_face_cache_load_file(plutovg_font_face_cache_t* cache, const ch
             while(family_length) {
                 stbtt_uint16 ch = MAC_ROMAN_TABLE[family_name[0]];
                 if(ch < 0x80) {
-                    entry->family[family_index++] = ch;
+                    entry->family[family_index++] = (char)ch;
                 } else if(ch < 0x800) {
                     entry->family[family_index++] = (0xc0 + (ch >> 6));
                     entry->family[family_index++] = (0x80 + (ch & 0x3f));

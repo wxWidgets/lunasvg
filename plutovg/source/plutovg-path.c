@@ -743,7 +743,7 @@ static inline bool parse_path_coordinates(const char** begin, const char* end, f
 bool plutovg_path_parse(plutovg_path_t* path, const char* data, int length)
 {
     if(length == -1)
-        length = strlen(data);
+        length = (int)strlen(data);
     const char* it = data;
     const char* end = it + length;
 
